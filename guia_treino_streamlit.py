@@ -1,104 +1,93 @@
 import streamlit as st
+import datetime
 
-st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
-
-st.title("🏋️ Guia Diário de Treino e Cardápio")
-st.write("Selecione o dia da semana para visualizar o treino e o cardápio.")
-
-dias = [
-    "Segunda-feira", "Terça-feira", "Quarta-feira",
-    "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"
-]
-
-dia_selecionado = st.selectbox("📅 Escolha o dia:", dias)
-
+# -------------------------
+# Dados simulados do plano
+# -------------------------
 treinos = {
-    "Segunda-feira": {
-        "titulo": "Treino A – Pernas e Core",
-        "detalhes": [
-            "[1️⃣ Agachamento Livre – 4x10](https://www.youtube.com/watch?v=U3HlEF_E9fo)",
-            "[2️⃣ Leg Press 45° – 3x12](https://www.youtube.com/watch?v=IZxyjW7MPJQ)",
-            "[3️⃣ Stiff com Halteres – 3x12](https://www.youtube.com/watch?v=OPwB0Gf7kzU)",
-            "[4️⃣ Afundo com Passada – 3x10 por perna](https://www.youtube.com/watch?v=wrwwXE_x-pQ)",
-            "[5️⃣ Elevação de Panturrilha no Smith – 4x15](https://www.youtube.com/watch?v=YMmgqO8Jo-k)",
-            "[6️⃣ Prancha Abdominal com carga – 3x40s](https://www.youtube.com/watch?v=pSHjTRCQxIw)",
-            "**💥 Finalizador**: Agachamento com Salto + Corrida no lugar (20s ON / 10s OFF – 2 min)"
-        ]
-    },
-    "Terça-feira": {
-        "titulo": "Treino B – Peito, Tríceps e Ombros",
-        "detalhes": [
-            "[1️⃣ Supino Reto com Barra – 4x10](https://www.youtube.com/watch?v=rT7DgCr-3pg)",
-            "[2️⃣ Supino Inclinado com Halteres – 3x12](https://www.youtube.com/watch?v=8iPEnn-ltC8)",
-            "[3️⃣ Desenvolvimento Militar – 3x10](https://www.youtube.com/watch?v=qEwKCR5JCog)",
-            "[4️⃣ Tríceps Testa com Barra EZ – 3x12](https://www.youtube.com/watch?v=vB5OHsJ3EME)",
-            "[5️⃣ Tríceps Corda no Cross – 3x12](https://www.youtube.com/watch?v=vB5OHsJ3EME)",
-            "[6️⃣ Abdominal Oblíquo com Peso – 3x15 por lado](https://www.youtube.com/watch?v=DJQGX2J4IVw)",
-            "**💥 Finalizador**: Flexão Explosiva + Burpees (30s cada x3)"
-        ]
-    },
-    "Quarta-feira": {
-        "titulo": "🏊 Natação + Core",
-        "detalhes": [
-            "🔹 Aquecimento: 10 min nado leve",
-            "🔹 5x100m ritmo moderado com 30s de pausa",
-            "🔹 4x50m tiros fortes com 15s de pausa",
-            "🔹 Nado regenerativo: 10 min",
-            "🔹 Extra: Abdominais e prancha 3x"
-        ]
-    },
-    "Quinta-feira": {
-        "titulo": "Treino C – Costas e Bíceps",
-        "detalhes": [
-            "[1️⃣ Barra Fixa – 4x6-8](https://www.youtube.com/watch?v=eGo4IYlbE5g)",
-            "[2️⃣ Remada Curvada com Barra – 3x12](https://www.youtube.com/watch?v=vT2GjY_Umpw)",
-            "[3️⃣ Pulldown na Polia Alta – 3x10](https://www.youtube.com/watch?v=lueEJGjTuPQ)",
-            "[4️⃣ Rosca Direta com Barra – 3x12](https://www.youtube.com/watch?v=kwG2ipFRgfo)",
-            "[5️⃣ Rosca Martelo com Halteres – 3x12](https://www.youtube.com/watch?v=zC3nLlEvin4)",
-            "[6️⃣ Hiperextensão Lombar com Peso – 3x15](https://www.youtube.com/watch?v=2SzjLs5bNok)",
-            "**💥 Finalizador**: Kettlebell Swing + Remada TRX (30s x2)"
-        ]
-    },
-    "Sexta-feira": {
-        "titulo": "🏊 Natação + Core",
-        "detalhes": [
-            "🔹 Repetir protocolo de quarta-feira"
-        ]
-    },
-    "Sábado": {
-        "titulo": "Treino D – Full Body Metabólico",
-        "detalhes": [
-            "[1️⃣ Deadlift – 4x8](https://www.youtube.com/watch?v=op9kVnSso6Q)",
-            "[2️⃣ Agachamento Frontal – 3x10](https://www.youtube.com/watch?v=t2b8UdqmlFs)",
-            "[3️⃣ Supino Fechado – 3x12](https://www.youtube.com/watch?v=tKjcgfu44sI)",
-            "[4️⃣ Remada Unilateral – 3x12](https://www.youtube.com/watch?v=roCP6wCXPqo)",
-            "[5️⃣ Ab Wheel – 3x15](https://www.youtube.com/watch?v=QvR1B8KxFhA)",
-            "**💥 Finalizador**: Sled + Corda Naval (30s x3)"
-        ]
-    },
-    "Domingo": {
-        "titulo": "Cardio + Mobilidade",
-        "detalhes": [
-            "🚶 Caminhada acelerada 45 min ou 🚴 Pedal leve 30 min",
-            "🧘 Sessão de alongamentos ou yoga leve"
-        ]
-    }
+    "A - Pernas e Core": [
+        ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
+        ("Leg Press 45°", "https://www.youtube.com/watch?v=IZxyjW7MPJQ"),
+        ("Stiff com Halteres", "https://www.youtube.com/watch?v=6P2QcD3jN8w"),
+        ("Afundo com Passada", "https://www.youtube.com/watch?v=QF0BQS2W80k"),
+        ("Elevação de Panturrilha", "https://www.youtube.com/watch?v=-M4-G8p8fmc"),
+        ("Prancha Abdominal", "https://www.youtube.com/watch?v=ASdvN_XEl_c")
+    ],
+    "B - Peito, Tríceps e Ombros": [
+        ("Supino Reto com Barra", "https://www.youtube.com/watch?v=rT7DgCr-3pg"),
+        ("Supino Inclinado com Halteres", "https://www.youtube.com/watch?v=8iPEnn-ltC8"),
+        ("Desenvolvimento Militar", "https://www.youtube.com/watch?v=B-aVuyhvLHU"),
+        ("Tríceps Testa", "https://www.youtube.com/watch?v=6SS6K3lAwZ8"),
+        ("Tríceps Corda no Cross", "https://www.youtube.com/watch?v=vB5OHsJ3EME"),
+        ("Abdominal Oblíquo", "https://www.youtube.com/watch?v=E4h40NOUOHM")
+    ],
+    "C - Costas e Bíceps": [
+        ("Barra Fixa", "https://www.youtube.com/watch?v=HRVvH5u6SGc"),
+        ("Remada Curvada com Barra", "https://www.youtube.com/watch?v=vT2GjY_Umpw"),
+        ("Pulldown na Polia", "https://www.youtube.com/watch?v=CAwf7n6Luuc"),
+        ("Rosca Direta com Barra EZ", "https://www.youtube.com/watch?v=kwG2ipFRgfo"),
+        ("Rosca Martelo com Halteres", "https://www.youtube.com/watch?v=zC3nLlEvin4"),
+        ("Hiperextensão Lombar", "https://www.youtube.com/watch?v=ph3pddpKzzw")
+    ]
 }
 
 cardapio = {
-    "Segunda-feira": "Omelete, iogurte, frango com arroz, shake com banana, tilápia grelhada, chá com queijo branco",
-    "Terça-feira": "Tapioca, maçã, carne magra com quinoa, iogurte com aveia, omelete de atum, caseína",
-    "Quarta-feira": "Panqueca de banana, castanhas, frango e batata-doce, shake + pasta amendoim, tilápia assada, ovo cozido",
-    "Quinta-feira": "Mingau com whey, castanhas, salmão e mandioquinha, iogurte + frutas, frango ao curry, pasta de amendoim",
-    "Sexta-feira": "Ovos cozidos, amêndoas, strogonoff fit, shake + banana, omelete + arroz negro, iogurte com linhaça",
-    "Sábado": "Cuscuz + ovo, iogurte + chia, mignon + quinoa, nozes + suco, frango assado, leite + chocolate",
-    "Domingo": "Crepioca, amendoim, peixe + batata-doce, shake + pão integral, sopa de legumes, leite + pasta amendoim"
+    "Segunda-feira": [
+        ("Café da manhã", "Omelete com 3 ovos + pão integral + café"),
+        ("Almoço", "Frango grelhado + arroz integral + salada verde"),
+        ("Lanche", "Shake de whey + banana"),
+        ("Jantar", "Tilápia grelhada + purê de batata-doce + legumes")
+    ],
+    "Terça-feira": [
+        ("Café da manhã", "Tapioca com queijo branco + café preto"),
+        ("Almoço", "Carne vermelha magra + quinoa + brócolis"),
+        ("Lanche", "Iogurte grego + aveia + mel"),
+        ("Jantar", "Omelete de atum + arroz integral + rúcula")
+    ],
+    "Quarta-feira": [
+        ("Café da manhã", "Panqueca de banana com aveia"),
+        ("Almoço", "Peito de frango + batata-doce assada + salada"),
+        ("Lanche", "Shake de whey + pasta de amendoim"),
+        ("Jantar", "Tilápia assada com arroz negro + cenoura cozida")
+    ],
+    "Quinta-feira": [
+        ("Café da manhã", "Mingau de aveia com whey + canela"),
+        ("Almoço", "Salmão grelhado + purê de mandioquinha + aspargos"),
+        ("Lanche", "Iogurte proteico + frutas vermelhas"),
+        ("Jantar", "Frango ao curry + arroz basmati + salada")
+    ],
+    "Sexta-feira": [
+        ("Café da manhã", "3 ovos cozidos + pão integral + café preto"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"),
+        ("Lanche", "Whey protein + banana"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro")
+    ],
+    "Sábado": [
+        ("Café da manhã", "Cuscuz com ovo mexido + café preto"),
+        ("Almoço", "Filé mignon grelhado + quinoa + brócolis"),
+        ("Lanche", "Mix de nozes + suco de laranja"),
+        ("Jantar", "Peito de frango ao forno + arroz integral + salada")
+    ],
+    "Domingo": [
+        ("Café da manhã", "Crepioca de queijo cottage + café"),
+        ("Almoço", "Peixe grelhado + batata-doce + legumes assados"),
+        ("Lanche", "Shake de proteína + 1 fatia de pão integral"),
+        ("Jantar", "Sopa de legumes com frango desfiado")
+    ]
 }
 
-st.subheader(f"🏋️ {treinos[dia_selecionado]['titulo']}")
-for item in treinos[dia_selecionado]['detalhes']:
-    st.markdown(f"- {item}")
+# ------------------
+# Interface principal
+# ------------------
+st.title("📘 Guia de Treino + Alimentação")
+st.markdown("Selecione o **dia da semana** para ver seu treino e cardápio personalizado.")
 
-st.markdown("---")
+dia = st.selectbox("Dia da semana", list(cardapio.keys()))
+tipo_treino = st.selectbox("Tipo de Treino", list(treinos.keys()))
+
 st.subheader("🍽️ Cardápio do Dia")
-st.markdown(f"**{cardapio[dia_selecionado]}**")
+for refeicao, item in cardapio[dia]:
+    st.markdown(f"**{refeicao}:** {item}")
+
+st.subheader("🏋️ Treino d
+
