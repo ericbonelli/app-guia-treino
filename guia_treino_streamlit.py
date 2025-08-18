@@ -89,5 +89,10 @@ st.subheader("🍽️ Cardápio do Dia")
 for refeicao, item in cardapio[dia]:
     st.markdown(f"**{refeicao}:** {item}")
 
-st.subheader("🏋️ Treino d
+st.subheader("🏋️ Treino do Dia")
+for exercicio, link in treinos[tipo_treino]:
+    st.markdown(f"- [{exercicio}]({link})")
 
+# Final
+st.markdown("---")
+st.caption("Desenvolvido com ❤️ no Streamlit")
