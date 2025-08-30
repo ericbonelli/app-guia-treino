@@ -1,72 +1,14 @@
 import streamlit as st
-import datetime
-import pandas as pd
+from datetime import date
 
-st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
+# -------------------------
+# Configuração inicial
+# -------------------------
+st.set_page_config(page_title="Guia de Treino e Alimentação", layout="centered")
 
-st.title("📘 Guia de Treino + Alimentação Diária")
-st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
-
-# ------------------------------------------
-# Dia da semana atual (padrão)
-# ------------------------------------------
-dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-hoje = datetime.datetime.now().strftime("%A")
-hoje_pt = dias_semana[datetime.datetime.today().weekday()]
-
-dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
-
-# ------------------------------------------
-# Dados do cardápio diário (resumo)
-# ------------------------------------------
-cardapio = {
-    "Segunda-feira": [
-        ("Café da manhã", "Omelete com 3 ovos + pão integral + café"),
-        ("Almoço", "Frango grelhado + arroz integral + salada verde"),
-        ("Lanche", "Shake de whey + banana"),
-        ("Jantar", "Tilápia grelhada + purê de batata-doce + legumes")
-    ],
-    "Terça-feira": [
-        ("Café da manhã", "Tapioca com queijo branco + café preto"),
-        ("Almoço", "Carne vermelha magra + quinoa + brócolis"),
-        ("Lanche", "Iogurte grego + aveia + mel"),
-        ("Jantar", "Omelete de atum + arroz integral + rúcula")
-    ],
-    "Quarta-feira": [
-        ("Café da manhã", "Panqueca de banana com aveia e whey"),
-        ("Almoço", "Peito de frango + batata-doce assada + salada de alface com tomate"),
-        ("Lanche", "Shake de whey + pasta de amendoim"),
-        ("Jantar", "Tilápia assada com arroz negro + cenoura cozida")
-    ],
-    "Quinta-feira": [
-        ("Café da manhã", "Mingau de aveia com whey + canela"),
-        ("Almoço", "Salmão grelhado + purê de mandioquinha + aspargos"),
-        ("Lanche", "Iogurte proteico + frutas vermelhas"),
-        ("Jantar", "Frango ao curry com arroz basmati + salada de folhas")
-    ],
-    "Sexta-feira": [
-        ("Café da manhã", "3 ovos cozidos + pão integral + café preto"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"),
-        ("Lanche", "Whey protein + banana"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro")
-    ],
-    "Sábado": [
-        ("Café da manhã", "Cuscuz com ovo mexido + café preto"),
-        ("Almoço", "Filé mignon grelhado + quinoa + brócolis"),
-        ("Lanche", "Mix de nozes + suco de laranja natural"),
-        ("Jantar", "Peito de frango ao forno + arroz integral + salada")
-    ],
-    "Domingo": [
-        ("Café da manhã", "Crepioca de queijo cottage + café"),
-        ("Almoço", "Peixe grelhado + batata-doce + legumes assados"),
-        ("Lanche", "Shake de proteína + pão integral"),
-        ("Jantar", "Sopa de legumes com frango desfiado")
-    ]
-}
-
-# ------------------------------------------
-# Treinos
-# ------------------------------------------
+# -------------------------
+# Dados dos Treinos
+# -------------------------
 treinos = {
     "A - Pernas e Core": [
         ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
@@ -94,34 +36,46 @@ treinos = {
     ]
 }
 
-# ----------------------------
-# Checklists de alimentação
-# ----------------------------
+# -------------------------
+# Dados do Cardápio
+# -------------------------
+dias_jejum = ["Segunda-feira", "Terça-feira", "Sexta-feira"]
+cardapio = {}
+
+for dia in ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]:
+    if dia in dias_jejum:
+        cardapio[dia] = [
+            ("Almoço", "150g frango ou carne magra + 80g arroz integral (ou tubérculos) + legumes + 1 cchá azeite"),
+            ("Lanche", "1 scoop whey com água ou 100g iogurte c/ 10g whey e 7 morangos"),
+            ("Jantar", "Opção 1: Igual ao almoço / Opção 2: Omelete 4 ovos / Opção 3: Rap10 com frango e creme ricota")
+        ]
+    else:
+        cardapio[dia] = [
+            ("Café da manhã", "2 ovos + pão integral + queijo branco ou Shake com frutas vermelhas"),
+            ("Almoço", "150g frango/carne + 80g arroz integral + 80g feijão + legumes + 1 cchá azeite"),
+            ("Lanche", "Shake ou pão integral c/ frango e creme ricota"),
+            ("Pré-treino", "Barrinha de proteína"),
+            ("Jantar", "Opção 1: Omelete 4 ovos / Opção 2: Rap10 com carne moída e salada")
+        ]
+
+# -------------------------
+# Interface
+# -------------------------
+st.title("📘 Guia de Treino e Alimentação")
+st.markdown("Selecione o dia da semana para visualizar o treino, o cardápio e marcar o que foi realizado.")
+
+dia = st.selectbox("📅 Dia da semana", list(cardapio.keys()))
+treino_do_dia = st.selectbox("🏋️ Tipo de Treino", list(treinos.keys()))
+
 st.subheader("🍽️ Cardápio do Dia")
-with st.form("form_cardapio"):
-    for refeicao, descricao in cardapio[dia]:
-        st.checkbox(f"{refeicao}: {descricao}", key=f"refeicao_{refeicao}_{dia}")
-    st.form_submit_button("✅ Salvar refeições concluídas")
+for refeicao, descricao in cardapio[dia]:
+    st.checkbox(f"{refeicao}: {descricao}", key=f"{dia}_{refeicao}")
 
-# ----------------------------
-# Checklists de treino
-# ----------------------------
-st.subheader("🏋️ Exercícios de Musculação")
-tipo_treino = st.selectbox("Escolha o tipo de treino", list(treinos.keys()))
-with st.form("form_treino"):
-    for exercicio, link in treinos[tipo_treino]:
-        st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
-    st.form_submit_button("✅ Salvar treino realizado")
-
-# ----------------------------
-# Cardio extra
-# ----------------------------
-st.subheader("🏃 Cardio")
-if dia in ["Segunda-feira", "Sábado", "Domingo"]:
-    st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}")
-if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
-    st.checkbox("Natação (45min)", key=f"natacao_{dia}")
+st.subheader("🏋️ Exercícios do Treino")
+for exercicio, link in treinos[treino_do_dia]:
+    st.checkbox(f"[{exercicio}]({link})", key=f"{dia}_{exercicio}")
 
 st.markdown("---")
-st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
+st.caption("Desenvolvido com ❤️ por Eric | Pronto para integração com n8n e Google Sheets")
+
 
