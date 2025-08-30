@@ -1,6 +1,5 @@
 import streamlit as st
 import datetime
-import pandas as pd
 
 st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
 
@@ -11,56 +10,54 @@ st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens co
 # Dia da semana atual (padrão)
 # ------------------------------------------
 dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-hoje = datetime.datetime.now().strftime("%A")
 hoje_pt = dias_semana[datetime.datetime.today().weekday()]
-
 dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
 
-# ------------------------------------------
-# Dados do cardápio diário (do PDF adaptado)
-# ------------------------------------------
+# -------------------------
+# Cardápio atualizado com jejum (Seg, Qua, Sex)
+# -------------------------
 cardapio = {
     "Segunda-feira": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Omelete com 4 ovos ou frango grelhado + salada + azeite")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g frango grelhado + 80g arroz integral + salada com azeite"),
+        ("Lanche", "Whey protein com água ou iogurte desnatado com morangos"),
+        ("Jantar", "Omelete 4 ovos ou wrap integral com frango e ricota")
     ],
     "Terça-feira": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Rap10 com frango desfiado, creme de ricota, tomate, orégano")
+        ("Café da manhã", "2 ovos + pão integral + queijo branco"),
+        ("Almoço", "Filé de frango + arroz integral + feijão + legumes + salada"),
+        ("Lanche", "Whey com água ou iogurte desnatado + morangos ou wrap"),
+        ("Jantar", "Omelete ou wrap integral com carne moída e vegetais")
     ],
     "Quarta-feira": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Omelete com 4 ovos, tomate picado, salada de folhas")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "Frango grelhado + arroz + legumes + azeite"),
+        ("Lanche", "Iogurte ou pão com frango e requeijão light"),
+        ("Jantar", "Wrap de Rap10 com carne moída + alface + tomate")
     ],
     "Quinta-feira": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Rap10 com carne moída e creme de ricota, alface, tomate")
+        ("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Peixe ou carne + arroz integral + legumes + salada"),
+        ("Lanche", "Whey com morangos ou pão integral com proteína"),
+        ("Jantar", "Omelete ou prato leve com proteína + salada")
     ],
     "Sexta-feira": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Frango grelhado ou omelete com salada e azeite")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "Frango grelhado + arroz integral + legumes + salada"),
+        ("Lanche", "Whey com morangos ou iogurte com whey"),
+        ("Jantar", "Wrap ou omelete com folhas verdes e azeite")
     ],
     "Sábado": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Filé mignon + quinoa + brócolis"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Mix de nozes + suco de laranja natural"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Peito de frango ao forno + arroz integral + salada")
+        ("Café da manhã", "Crepioca de queijo cottage + café"),
+        ("Almoço", "Peito de frango ao forno + arroz integral + salada"),
+        ("Lanche", "Mix de nozes + suco de laranja natural"),
+        ("Jantar", "Tilápia assada + legumes + azeite")
     ],
     "Domingo": [
-        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "Crepioca de queijo cottage + café"),
-        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Peixe grelhado + batata-doce + legumes assados"),
-        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Shake de proteína + pão integral"),
-        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Sopa de legumes com frango desfiado")
+        ("Café da manhã", "Cuscuz com ovo mexido + café"),
+        ("Almoço", "Peixe grelhado + batata-doce + salada"),
+        ("Lanche", "Iogurte + frutas"),
+        ("Jantar", "Sopa de legumes com frango desfiado")
     ]
 }
 
@@ -124,6 +121,3 @@ if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
 
 st.markdown("---")
 st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
-
-
-
