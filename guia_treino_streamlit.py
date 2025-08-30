@@ -1,14 +1,72 @@
 import streamlit as st
-from datetime import date
+import datetime
+import pandas as pd
 
-# -------------------------
-# Configuração inicial
-# -------------------------
-st.set_page_config(page_title="Guia de Treino e Alimentação", layout="centered")
+st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
 
-# -------------------------
-# Dados dos Treinos
-# -------------------------
+st.title("📘 Guia de Treino + Alimentação Diária")
+st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
+
+# ------------------------------------------
+# Dia da semana atual (padrão)
+# ------------------------------------------
+dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+hoje = datetime.datetime.now().strftime("%A")
+hoje_pt = dias_semana[datetime.datetime.today().weekday()]
+
+dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
+
+# ------------------------------------------
+# Dados do cardápio diário (do PDF adaptado)
+# ------------------------------------------
+cardapio = {
+    "Segunda-feira": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Omelete com 4 ovos ou frango grelhado + salada + azeite")
+    ],
+    "Terça-feira": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Rap10 com frango desfiado, creme de ricota, tomate, orégano")
+    ],
+    "Quarta-feira": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Omelete com 4 ovos, tomate picado, salada de folhas")
+    ],
+    "Quinta-feira": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Rap10 com carne moída e creme de ricota, alface, tomate")
+    ],
+    "Sexta-feira": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Frango grelhado (150g), arroz integral (80g), feijão (80g), legumes (50g), azeite, salada à vontade"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Whey protein com água gelada ou iogurte + whey + morangos"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Frango grelhado ou omelete com salada e azeite")
+    ],
+    "Sábado": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "2 ovos grandes, pão integral, queijo branco ou shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Filé mignon + quinoa + brócolis"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Mix de nozes + suco de laranja natural"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Peito de frango ao forno + arroz integral + salada")
+    ],
+    "Domingo": [
+        ("Café da manhã", "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "JEJUM (até 12h - 18h)"), "Crepioca de queijo cottage + café"),
+        ("Almoço", "Strogonoff de frango fit + arroz integral + salada"), "150g peito de frango + 100g batata-doce + salada"), "150g frango grelhado + 80g arroz integral + folhas verdes + azeite"), "Peixe grelhado + batata-doce + legumes assados"),
+        ("Lanche", "Whey protein com água"), "Shake de whey com água"), "Shake de whey com água"), "Shake de proteína + pão integral"),
+        ("Jantar", "Omelete com queijo feta e espinafre + arroz negro"), "Tilápia assada + arroz negro + legumes cozidos"), "Omelete com 4 ovos + salada verde com azeite"), "Sopa de legumes com frango desfiado")
+    ]
+}
+
+# ------------------------------------------
+# Treinos
+# ------------------------------------------
 treinos = {
     "A - Pernas e Core": [
         ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
@@ -36,46 +94,36 @@ treinos = {
     ]
 }
 
-# -------------------------
-# Dados do Cardápio
-# -------------------------
-dias_jejum = ["Segunda-feira", "Terça-feira", "Sexta-feira"]
-cardapio = {}
-
-for dia in ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]:
-    if dia in dias_jejum:
-        cardapio[dia] = [
-            ("Almoço", "150g frango ou carne magra + 80g arroz integral (ou tubérculos) + legumes + 1 cchá azeite"),
-            ("Lanche", "1 scoop whey com água ou 100g iogurte c/ 10g whey e 7 morangos"),
-            ("Jantar", "Opção 1: Igual ao almoço / Opção 2: Omelete 4 ovos / Opção 3: Rap10 com frango e creme ricota")
-        ]
-    else:
-        cardapio[dia] = [
-            ("Café da manhã", "2 ovos + pão integral + queijo branco ou Shake com frutas vermelhas"),
-            ("Almoço", "150g frango/carne + 80g arroz integral + 80g feijão + legumes + 1 cchá azeite"),
-            ("Lanche", "Shake ou pão integral c/ frango e creme ricota"),
-            ("Pré-treino", "Barrinha de proteína"),
-            ("Jantar", "Opção 1: Omelete 4 ovos / Opção 2: Rap10 com carne moída e salada")
-        ]
-
-# -------------------------
-# Interface
-# -------------------------
-st.title("📘 Guia de Treino e Alimentação")
-st.markdown("Selecione o dia da semana para visualizar o treino, o cardápio e marcar o que foi realizado.")
-
-dia = st.selectbox("📅 Dia da semana", list(cardapio.keys()))
-treino_do_dia = st.selectbox("🏋️ Tipo de Treino", list(treinos.keys()))
-
+# ----------------------------
+# Checklists de alimentação
+# ----------------------------
 st.subheader("🍽️ Cardápio do Dia")
-for refeicao, descricao in cardapio[dia]:
-    st.checkbox(f"{refeicao}: {descricao}", key=f"{dia}_{refeicao}")
+with st.form("form_cardapio"):
+    for refeicao, descricao in cardapio[dia]:
+        st.checkbox(f"{refeicao}: {descricao}", key=f"refeicao_{refeicao}_{dia}")
+    st.form_submit_button("✅ Salvar refeições concluídas")
 
-st.subheader("🏋️ Exercícios do Treino")
-for exercicio, link in treinos[treino_do_dia]:
-    st.checkbox(f"[{exercicio}]({link})", key=f"{dia}_{exercicio}")
+# ----------------------------
+# Checklists de treino
+# ----------------------------
+st.subheader("🏋️ Exercícios de Musculação")
+tipo_treino = st.selectbox("Escolha o tipo de treino", list(treinos.keys()))
+with st.form("form_treino"):
+    for exercicio, link in treinos[tipo_treino]:
+        st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
+    st.form_submit_button("✅ Salvar treino realizado")
+
+# ----------------------------
+# Cardio extra
+# ----------------------------
+st.subheader("🏃 Cardio")
+if dia in ["Segunda-feira", "Sábado", "Domingo"]:
+    st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}")
+if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
+    st.checkbox("Natação (45min)", key=f"natacao_{dia}")
 
 st.markdown("---")
-st.caption("Desenvolvido com ❤️ por Eric | Pronto para integração com n8n e Google Sheets")
+st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
+
 
 
