@@ -2,53 +2,43 @@ import streamlit as st
 from datetime import datetime
 
 st.set_page_config(layout="centered")
-st.title("📆 Guia Diário de Treino e Cardápio")
+st.title("📘 Guia Diário de Treino e Cardápio")
 
 dias_semana = [
     "Segunda-feira", "Terça-feira", "Quarta-feira",
     "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"
 ]
 
-treinos = {
-    "Segunda-feira": ["🏋️ Musculação", "🏃 Corrida"],
-    "Terça-feira": ["🏋️ Musculação", "🏊 Natação"],
-    "Quarta-feira": ["🏋️ Musculação", "🏊 Natação"],
-    "Quinta-feira": ["🏋️ Musculação", "🏊 Natação"],
-    "Sexta-feira": ["🏋️ Musculação", "🏃 Corrida"],
-    "Sábado": ["🏃 Corrida"],
-    "Domingo": ["🏃 Corrida"]
-}
-
 cardapio = {
     "Segunda-feira": [
-        ("Jejum", "Dia de jejum com até 500 calorias"),
-        ("Almoço", "150g filé frango/carne + arroz integral + legumes + salada + azeite"),
-        ("Lanche", "Whey com água ou iogurte + morangos"),
-        ("Jantar", "Opções: Omelete 4 ovos, Wrap integral com frango, ou Frango + arroz + legumes")
+        ("Café da manhã", "Dia de jejum até 12h ou 18h — jejum intermitente 4x3."),
+        ("Almoço", "150g frango grelhado ou carne magra + 80g arroz integral ou raízes + salada e azeite"),
+        ("Lanche", "Whey com água gelada ou iogurte + whey + 7 morangos"),
+        ("Jantar", "Opções: 1) Frango + arroz + salada; 2) Omelete 4 ovos + folhas verdes; 3) Rap10 com frango, creme de ricota e tomate")
     ],
     "Terça-feira": [
-        ("Café da manhã", "2 ovos, pão integral, queijo branco ou shake"),
-        ("Almoço", "Frango ou carne + arroz integral + feijão + legumes + azeite"),
-        ("Lanche", "Whey com água ou wrap leve"),
-        ("Jantar", "Wrap com carne moída ou omelete com folhas")
+        ("Café da manhã", "2 ovos grandes + pão integral + queijo branco ou shake de whey"),
+        ("Almoço", "Filé de frango + arroz + feijão + legumes + salada com azeite"),
+        ("Lanche", "Whey ou wrap com frango + pão integral"),
+        ("Jantar", "Omelete ou wrap integral com carne moída e vegetais")
     ],
     "Quarta-feira": [
-        ("Jejum", "Dia de jejum com até 500 calorias"),
-        ("Almoço", "150g filé frango/carne + arroz integral + legumes + salada + azeite"),
-        ("Lanche", "Whey com água ou iogurte + morangos"),
-        ("Jantar", "Opções: Omelete 4 ovos, Wrap integral com frango, ou Frango + arroz + legumes")
+        ("Café da manhã", "Dia de jejum até 12h ou 18h — jejum intermitente 4x3."),
+        ("Almoço", "150g frango grelhado ou carne magra + 80g arroz integral ou raízes + salada e azeite"),
+        ("Lanche", "Whey com água gelada ou iogurte + whey + 7 morangos"),
+        ("Jantar", "Opções: 1) Frango + arroz + salada; 2) Omelete 4 ovos + folhas verdes; 3) Rap10 com frango, creme de ricota e tomate")
     ],
     "Quinta-feira": [
-        ("Café da manhã", "Shake de whey com frutas vermelhas + linhaça"),
-        ("Almoço", "Peixe ou carne + arroz integral + legumes + azeite"),
+        ("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Peixe ou carne + arroz integral + legumes + salada com azeite"),
         ("Lanche", "Whey ou pão com frango e ricota"),
-        ("Jantar", "Omelete ou wrap integral com vegetais")
+        ("Jantar", "Omelete ou prato leve com proteína + salada")
     ],
     "Sexta-feira": [
-        ("Jejum", "Dia de jejum com até 500 calorias"),
-        ("Almoço", "150g filé frango/carne + arroz integral + legumes + salada + azeite"),
-        ("Lanche", "Whey com água ou iogurte + morangos"),
-        ("Jantar", "Opções: Omelete 4 ovos, Wrap integral com frango, ou Frango + arroz + legumes")
+        ("Café da manhã", "Dia de jejum até 12h ou 18h — jejum intermitente 4x3."),
+        ("Almoço", "150g frango grelhado ou carne magra + 80g arroz integral ou raízes + salada e azeite"),
+        ("Lanche", "Whey com água gelada ou iogurte + whey + 7 morangos"),
+        ("Jantar", "Opções: 1) Frango + arroz + salada; 2) Omelete 4 ovos + folhas verdes; 3) Rap10 com frango, creme de ricota e tomate")
     ],
     "Sábado": [
         ("Café da manhã", "2 ovos, pão integral, queijo branco ou shake"),
@@ -57,35 +47,34 @@ cardapio = {
         ("Jantar", "Frango ao forno, sopa ou prato leve com vegetais")
     ],
     "Domingo": [
-        ("Café da manhã", "Crepioca de queijo cottage + café"),
-        ("Almoço", "Peixe ou frango, arroz, legumes e salada"),
+        ("Café da manhã", "Crepioca com queijo cottage ou ovos + shake"),
+        ("Almoço", "Peixe grelhado, arroz ou batata, legumes e salada"),
         ("Lanche", "Shake de proteína ou pão integral com frango"),
-        ("Jantar", "Omelete ou sopa leve de legumes")
+        ("Jantar", "Omelete ou sopa de legumes com proteína")
     ]
 }
 
-dia_hoje = datetime.now().strftime("%A")
-mapa_dia = {
-    "Monday": "Segunda-feira",
-    "Tuesday": "Terça-feira",
-    "Wednesday": "Quarta-feira",
-    "Thursday": "Quinta-feira",
-    "Friday": "Sexta-feira",
-    "Saturday": "Sábado",
-    "Sunday": "Domingo"
+treino = {
+    "Segunda-feira": ["🏃 Corrida"],
+    "Terça-feira": ["🏋️‍♀️ Musculação - Peito e Tríceps", "🏊‍♂️ Natação"],
+    "Quarta-feira": ["🏃 Corrida"],
+    "Quinta-feira": ["🏋️‍♂️ Musculação - Costas e Bíceps", "🏊‍♂️ Natação"],
+    "Sexta-feira": ["🏃 Corrida"],
+    "Sábado": ["🏃 Corrida"],
+    "Domingo": ["🧘 Livre ou descanso ativo"]
 }
-dia = mapa_dia.get(dia_hoje, "Segunda-feira")
 
-st.header(f"📋 {dia}")
+hoje = datetime.today().weekday()
+dia_atual = dias_semana[hoje]
+
+st.header(f"📅 {dia_atual}")
 
 st.subheader("🍽️ Cardápio do Dia")
-for refeicao, descricao in cardapio.get(dia, []):
-    st.checkbox(f"{refeicao}: {descricao}", key=f"{dia}_{refeicao}")
+for refeicao, descricao in cardapio[dia_atual]:
+    st.checkbox(f"{refeicao}: {descricao}", key=f"{refeicao}_{dia_atual}")
 
 st.subheader("🏋️ Treino do Dia")
-for treino in treinos.get(dia, []):
-    st.checkbox(treino, key=f"{dia}_{treino}")
+for atividade in treino[dia_atual]:
+    st.checkbox(f"{atividade}", key=f"{atividade}_{dia_atual}")
 
-st.markdown("---")
 st.markdown("✅ Marque as opções conforme completar sua rotina.")
-st.markdown("_Integração futura com painel histórico e analytics_ 📊")
