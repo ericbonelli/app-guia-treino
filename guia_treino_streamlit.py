@@ -1,69 +1,91 @@
 import streamlit as st
-import datetime
+from datetime import datetime
 
-st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
-st.title("📘 Guia de Treino + Alimentação Diária")
-st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
+st.set_page_config(layout="centered")
+st.title("📆 Guia Diário de Treino e Cardápio")
 
-dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-hoje = datetime.datetime.now().strftime("%A")
-hoje_pt = dias_semana[datetime.datetime.today().weekday()]
-dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
+dias_semana = [
+    "Segunda-feira", "Terça-feira", "Quarta-feira",
+    "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"
+]
+
+treinos = {
+    "Segunda-feira": ["🏋️ Musculação", "🏃 Corrida"],
+    "Terça-feira": ["🏋️ Musculação", "🏊 Natação"],
+    "Quarta-feira": ["🏋️ Musculação", "🏊 Natação"],
+    "Quinta-feira": ["🏋️ Musculação", "🏊 Natação"],
+    "Sexta-feira": ["🏋️ Musculação", "🏃 Corrida"],
+    "Sábado": ["🏃 Corrida"],
+    "Domingo": ["🏃 Corrida"]
+}
 
 cardapio = {
     "Segunda-feira": [
-        ("Café da manhã", "Jejum Intermitente (até 12h ou até 18h)"),
-        ("Almoço", "150g frango grelhado ou carne magra, 80g arroz integral ou raízes, salada e legumes à vontade"),
-        ("Lanche", "Whey com água ou iogurte + whey + morangos"),
-        ("Jantar", "Opções:
-- Omelete 4 ovos + salada
-- Wrap de frango com creme de ricota
-- Frango grelhado + legumes")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g filé frango/carne + arroz integral + legumes + salada + azeite"),
+        ("Lanche", "Whey com água ou iogurte + morangos"),
+        ("Jantar", "Opções: Omelete 4 ovos, Wrap integral com frango, ou Frango + arroz + legumes")
     ],
     "Terça-feira": [
-        ("Café da manhã", "2 ovos + pão integral + queijo branco ou shake de whey"),
-        ("Almoço", "Frango ou carne + arroz + feijão + legumes + azeite"),
-        ("Lanche", "Iogurte ou pão + frango + ricota"),
-        ("Jantar", "Wrap ou omelete + salada")
+        ("Café da manhã", "2 ovos, pão integral, queijo branco ou shake"),
+        ("Almoço", "Frango ou carne + arroz integral + feijão + legumes + azeite"),
+        ("Lanche", "Whey com água ou wrap leve"),
+        ("Jantar", "Wrap com carne moída ou omelete com folhas")
     ],
     "Quarta-feira": [
-        ("Café da manhã", "Jejum Intermitente (até 12h ou até 18h)"),
-        ("Almoço", "Frango ou carne + arroz + legumes + azeite"),
-        ("Lanche", "Whey com água ou iogurte + whey + morangos"),
-        ("Jantar", "Omelete ou wrap + salada")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g filé frango/carne + arroz integral + legumes + salada + azeite"),
+        ("Lanche", "Whey com água ou iogurte + morangos"),
+        ("Jantar", "Opções: Omelete 4 ovos, Wrap integral com frango, ou Frango + arroz + legumes")
     ],
     "Quinta-feira": [
-        ("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Peixe ou carne + arroz + legumes + azeite"),
-        ("Lanche", "Whey + morangos ou pão + proteína"),
-        ("Jantar", "Omelete ou prato leve com salada")
+        ("Café da manhã", "Shake de whey com frutas vermelhas + linhaça"),
+        ("Almoço", "Peixe ou carne + arroz integral + legumes + azeite"),
+        ("Lanche", "Whey ou pão com frango e ricota"),
+        ("Jantar", "Omelete ou wrap integral com vegetais")
     ],
     "Sexta-feira": [
-        ("Café da manhã", "Jejum Intermitente (até 12h ou até 18h)"),
-        ("Almoço", "Frango ou carne + arroz + legumes + salada"),
-        ("Lanche", "Whey + morangos ou iogurte com whey"),
-        ("Jantar", "Wrap ou omelete + folhas verdes")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g filé frango/carne + arroz integral + legumes + salada + azeite"),
+        ("Lanche", "Whey com água ou iogurte + morangos"),
+        ("Jantar", "Opções: Omelete 4 ovos, Wrap integral com frango, ou Frango + arroz + legumes")
     ],
     "Sábado": [
-        ("Café da manhã", "2 ovos + pão integral + queijo branco"),
-        ("Almoço", "Carne magra + arroz integral + legumes + azeite"),
-        ("Lanche", "Mix de castanhas ou whey + fruta"),
-        ("Jantar", "Frango assado + salada")
+        ("Café da manhã", "2 ovos, pão integral, queijo branco ou shake"),
+        ("Almoço", "Frango, arroz integral, legumes, salada"),
+        ("Lanche", "Mix de nozes ou whey"),
+        ("Jantar", "Frango ao forno, sopa ou prato leve com vegetais")
     ],
     "Domingo": [
-        ("Café da manhã", "Crepioca com queijo cottage + café"),
-        ("Almoço", "Peixe + batata-doce + legumes"),
-        ("Lanche", "Whey + pão integral ou shake"),
-        ("Jantar", "Sopa de legumes + frango desfiado")
+        ("Café da manhã", "Crepioca de queijo cottage + café"),
+        ("Almoço", "Peixe ou frango, arroz, legumes e salada"),
+        ("Lanche", "Shake de proteína ou pão integral com frango"),
+        ("Jantar", "Omelete ou sopa leve de legumes")
     ]
 }
 
+dia_hoje = datetime.now().strftime("%A")
+mapa_dia = {
+    "Monday": "Segunda-feira",
+    "Tuesday": "Terça-feira",
+    "Wednesday": "Quarta-feira",
+    "Thursday": "Quinta-feira",
+    "Friday": "Sexta-feira",
+    "Saturday": "Sábado",
+    "Sunday": "Domingo"
+}
+dia = mapa_dia.get(dia_hoje, "Segunda-feira")
+
+st.header(f"📋 {dia}")
+
 st.subheader("🍽️ Cardápio do Dia")
-with st.form("form_cardapio"):
-    for refeicao, descricao in cardapio[dia]:
-        st.checkbox(f"{refeicao}: {descricao}", key=f"refeicao_{refeicao}_{dia}")
-    st.form_submit_button("✅ Salvar refeições concluídas")
+for refeicao, descricao in cardapio.get(dia, []):
+    st.checkbox(f"{refeicao}: {descricao}", key=f"{dia}_{refeicao}")
+
+st.subheader("🏋️ Treino do Dia")
+for treino in treinos.get(dia, []):
+    st.checkbox(treino, key=f"{dia}_{treino}")
 
 st.markdown("---")
-st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
-
+st.markdown("✅ Marque as opções conforme completar sua rotina.")
+st.markdown("_Integração futura com painel histórico e analytics_ 📊")
