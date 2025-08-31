@@ -1,13 +1,27 @@
 import streamlit as st
 import datetime
 import gspread
-from google.oauth2.service_account import Credentials 
+from google.oauth2.service_account import Credentials
 from datetime import datetime as dt
+import pandas as pd
+import plotly.express as px
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
 st.title("📘 Guia de Treino + Alimentação Diária")
 st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
+
+# CONEXÃO COM PLANILHA
+@st.cache_data(ttl=300)
+def carregar_dados():
+    creds = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=["https://www.googleapis.com/auth/spreadsheets"]
+    )
+    client = gspread.authorize(creds)
+    worksheet = client.open("Registro Diario Treino e Alimentacao").worksheet("Dados")
+    registros = worksheet.get_all_records()
+    return pd.DataFrame(registros)
 
 # --- SELEÇÃO DO DIA ---
 dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
@@ -135,6 +149,44 @@ if st.button("📤 Enviar Dia para Registro"):
 
     except Exception as e:
         st.error(f"❌ Erro ao salvar na planilha: {e}")
+        
+# DASHBOARD E ANÁLISE DE PROGRESSO
+st.markdown("---")
+st.header("📊 Progresso e Análises")
+df = carregar_dados()
+
+if not df.empty:
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("✅ Dias Registrados")
+        df['Data'] = pd.to_datetime(df['Timestamp']).dt.date
+        fig_dias = px.histogram(df, x='Data', nbins=20, title="Dias com registro")
+        st.plotly_chart(fig_dias, use_container_width=True)
+
+        st.subheader("🏋️ Treinos mais frequentes")
+        df['Treinos'] = df['Treinos'].str.split(", ")
+        treino_explodido = df.explode('Treinos')
+        fig_treino = px.histogram(treino_explodido, x='Treinos', title="Frequência dos Exercícios")
+        st.plotly_chart(fig_treino, use_container_width=True)
+
+    with col2:
+        st.subheader("💧 Dias com Cardio")
+        cardio_count = df['Cardio'].apply(lambda x: len(x.strip()) > 0).sum()
+        cardio_pct = cardio_count / len(df) * 100
+        st.metric("🏃 Cardio realizado", f"{cardio_count} dias", f"{cardio_pct:.1f}% dos dias")
+
+        st.subheader("🧘 Dias com Jejum")
+        jejum_count = df['Refeições'].str.contains("Jejum").sum()
+        jejum_pct = jejum_count / len(df) * 100
+        st.metric("⏳ Jejum realizado", f"{jejum_count} dias", f"{jejum_pct:.1f}% dos dias")
+
+        st.subheader("📈 Evolução dos treinos")
+        fig_evo = px.line(df, x='Timestamp', y=df['Treinos'].apply(lambda x: len(x.split(", ")) if x else 0),
+                          title="Nº de exercícios por dia", labels={"y": "Qtd. de Exercícios"})
+        st.plotly_chart(fig_evo, use_container_width=True)
+else:
+    st.info("Nenhum dado registrado ainda.")
 
 st.markdown("---")
 st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
