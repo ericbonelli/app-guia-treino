@@ -1,44 +1,47 @@
 import streamlit as st
-from datetime import datetime
 
 st.set_page_config(layout="centered")
-st.title("📘 Guia Diário de Treino e Cardápio")
 
-dias_semana = [
-    "Segunda-feira", "Terça-feira", "Quarta-feira",
-    "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"
+dias = [
+    "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira",
+    "Sexta-feira", "Sábado", "Domingo"
 ]
 
 cardapio = {
     "Segunda-feira": [
-        ("Café da manhã", "Dia de jejum até 12h ou 18h — jejum intermitente 4x3."),
-        ("Almoço", "150g frango grelhado ou carne magra + 80g arroz integral ou raízes + salada e azeite"),
-        ("Lanche", "Whey com água gelada ou iogurte + whey + 7 morangos"),
-        ("Jantar", "Opções: 1) Frango + arroz + salada; 2) Omelete 4 ovos + folhas verdes; 3) Rap10 com frango, creme de ricota e tomate")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g filé de frango grelhado ou carne magra, 80g arroz integral, mix de folhas, legumes cozidos, 1 col chá azeite"),
+        ("Lanche", "Whey protein com água ou iogurte desnatado + 7 morangos"),
+        ("Jantar", "Opções:
+1. Omelete com 4 ovos, tomate, salada
+2. 150g frango ou carne, folhas + azeite
+3. Wrap de Rap10 com frango + creme ricota + tomate")
     ],
     "Terça-feira": [
-        ("Café da manhã", "2 ovos grandes + pão integral + queijo branco ou shake de whey"),
-        ("Almoço", "Filé de frango + arroz + feijão + legumes + salada com azeite"),
-        ("Lanche", "Whey ou wrap com frango + pão integral"),
-        ("Jantar", "Omelete ou wrap integral com carne moída e vegetais")
+        ("Café da manhã", "2 ovos grandes, pão integral, queijo branco ou shake"),
+        ("Almoço", "Frango grelhado, arroz integral, feijão, legumes, azeite, salada"),
+        ("Lanche", "Whey com água ou iogurte + morangos"),
+        ("Jantar", "Omelete ou wrap integral com carne moída, vegetais")
     ],
     "Quarta-feira": [
-        ("Café da manhã", "Dia de jejum até 12h ou 18h — jejum intermitente 4x3."),
-        ("Almoço", "150g frango grelhado ou carne magra + 80g arroz integral ou raízes + salada e azeite"),
-        ("Lanche", "Whey com água gelada ou iogurte + whey + 7 morangos"),
-        ("Jantar", "Opções: 1) Frango + arroz + salada; 2) Omelete 4 ovos + folhas verdes; 3) Rap10 com frango, creme de ricota e tomate")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g filé de frango ou carne, 80g arroz integral, folhas, legumes, azeite"),
+        ("Lanche", "Whey com água ou iogurte + morangos"),
+        ("Jantar", "1. Omelete com 4 ovos + salada
+2. Frango + arroz + legumes
+3. Wrap com frango + creme ricota")
     ],
     "Quinta-feira": [
-        ("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Peixe ou carne + arroz integral + legumes + salada com azeite"),
-        ("Lanche", "Whey ou pão com frango e ricota"),
-        ("Jantar", "Omelete ou prato leve com proteína + salada")
+        ("Café da manhã", "Shake: whey + frutas vermelhas + linhaça + água"),
+        ("Almoço", "Peixe ou carne, arroz integral, legumes e salada"),
+        ("Lanche", "Whey ou pão integral com frango"),
+        ("Jantar", "Omelete ou prato leve com salada")
     ],
     "Sexta-feira": [
-        ("Café da manhã", "Dia de jejum até 12h ou 18h — jejum intermitente 4x3."),
-        ("Almoço", "150g frango grelhado ou carne magra + 80g arroz integral ou raízes + salada e azeite"),
-        ("Lanche", "Whey com água gelada ou iogurte + whey + 7 morangos"),
-        ("Jantar", "Opções: 1) Frango + arroz + salada; 2) Omelete 4 ovos + folhas verdes; 3) Rap10 com frango, creme de ricota e tomate")
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "Frango grelhado, arroz integral, legumes, salada"),
+        ("Lanche", "Whey com morangos ou iogurte + whey"),
+        ("Jantar", "Wrap ou omelete com folhas verdes e azeite")
     ],
     "Sábado": [
         ("Café da manhã", "2 ovos, pão integral, queijo branco ou shake"),
@@ -47,34 +50,35 @@ cardapio = {
         ("Jantar", "Frango ao forno, sopa ou prato leve com vegetais")
     ],
     "Domingo": [
-        ("Café da manhã", "Crepioca com queijo cottage ou ovos + shake"),
-        ("Almoço", "Peixe grelhado, arroz ou batata, legumes e salada"),
-        ("Lanche", "Shake de proteína ou pão integral com frango"),
-        ("Jantar", "Omelete ou sopa de legumes com proteína")
+        ("Café da manhã", "Crepioca com queijo cottage + café"),
+        ("Almoço", "Peixe grelhado, batata-doce, legumes"),
+        ("Lanche", "Shake de proteína + pão integral"),
+        ("Jantar", "Sopa de legumes com frango desfiado")
     ]
 }
 
-treino = {
-    "Segunda-feira": ["🏃 Corrida"],
-    "Terça-feira": ["🏋️‍♀️ Musculação - Peito e Tríceps", "🏊‍♂️ Natação"],
-    "Quarta-feira": ["🏃 Corrida"],
-    "Quinta-feira": ["🏋️‍♂️ Musculação - Costas e Bíceps", "🏊‍♂️ Natação"],
-    "Sexta-feira": ["🏃 Corrida"],
+treinos = {
+    "Segunda-feira": ["🏋️‍♀️ Musculação (Peito e Tríceps)", "🏃 Corrida"],
+    "Terça-feira": ["🏋️‍♀️ Musculação (Costas e Bíceps)", "🏊 Natação"],
+    "Quarta-feira": ["🏋️‍♀️ Musculação (Pernas)", "🏊 Natação"],
+    "Quinta-feira": ["🏋️‍♀️ Musculação (Ombro e Abdômen)", "🏊 Natação"],
+    "Sexta-feira": ["🏋️‍♀️ Musculação (Full Body)", "🏊 Natação"],
     "Sábado": ["🏃 Corrida"],
-    "Domingo": ["🧘 Livre ou descanso ativo"]
+    "Domingo": []
 }
 
-hoje = datetime.today().weekday()
-dia_atual = dias_semana[hoje]
+st.title("📒 Guia Diário de Treino e Cardápio")
 
-st.header(f"📅 {dia_atual}")
+dia_escolhido = st.selectbox("Escolha o dia da semana:", dias)
+st.header(f"🍽️ Cardápio do Dia - {dia_escolhido}")
 
-st.subheader("🍽️ Cardápio do Dia")
-for refeicao, descricao in cardapio[dia_atual]:
-    st.checkbox(f"{refeicao}: {descricao}", key=f"{refeicao}_{dia_atual}")
+for refeicao, texto in cardapio[dia_escolhido]:
+    st.checkbox(f"{refeicao}: {texto}")
 
-st.subheader("🏋️ Treino do Dia")
-for atividade in treino[dia_atual]:
-    st.checkbox(f"{atividade}", key=f"{atividade}_{dia_atual}")
+if treinos[dia_escolhido]:
+    st.header("🏋️‍♂️ Treino do Dia")
+    for t in treinos[dia_escolhido]:
+        st.checkbox(t)
 
 st.markdown("✅ Marque as opções conforme completar sua rotina.")
+
