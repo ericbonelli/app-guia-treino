@@ -1,65 +1,159 @@
 import streamlit as st
 import datetime
 import requests
+from datetime import datetime as dt
 
-st.set_page_config(page_title="Guia Diário de Treino e Cardápio", layout="wide")
-st.title("📘 Guia Diário de Treino e Cardápio")
+# Configuração da página
+st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
+st.title("📘 Guia de Treino + Alimentação Diária")
+st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
 
+# -----------------------------
+# Dia da semana (padrão: hoje)
+# -----------------------------
 dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-hoje = datetime.datetime.today().weekday()
-dia = st.selectbox("📅 Selecione o dia", dias_semana, index=hoje)
+hoje_pt = dias_semana[datetime.datetime.today().weekday()]
+dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
 
-# --- CARDÁPIO ---
-st.markdown("## 🍽️ Cardápio do Dia")
-check_cafe = st.checkbox("☑️ Café da manhã: 2 ovos, pão integral, queijo branco ou shake")
-check_almoco = st.checkbox("☑️ Almoço: Frango, arroz integral, legumes, salada")
-check_lanche = st.checkbox("☑️ Lanche: Mix de nozes ou whey")
-check_jantar = st.checkbox("☑️ Jantar: Frango ao forno, sopa ou prato leve com vegetais")
+# -----------------------------
+# Cardápio com jejum seg/qua/sex
+# -----------------------------
+cardapio = {
+    "Segunda-feira": [
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "150g frango grelhado + 80g arroz integral + salada com azeite"),
+        ("Lanche", "Whey protein com água ou iogurte desnatado com morangos"),
+        ("Jantar", "Omelete 4 ovos ou wrap integral com frango e ricota")
+    ],
+    "Terça-feira": [
+        ("Café da manhã", "2 ovos + pão integral + queijo branco"),
+        ("Almoço", "Filé de frango + arroz integral + feijão + legumes + salada"),
+        ("Lanche", "Whey com água ou iogurte desnatado + morangos ou wrap"),
+        ("Jantar", "Omelete ou wrap integral com carne moída e vegetais")
+    ],
+    "Quarta-feira": [
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "Frango grelhado + arroz + legumes + azeite"),
+        ("Lanche", "Iogurte ou pão com frango e requeijão light"),
+        ("Jantar", "Wrap de Rap10 com carne moída + alface + tomate")
+    ],
+    "Quinta-feira": [
+        ("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
+        ("Almoço", "Peixe ou carne + arroz integral + legumes + salada"),
+        ("Lanche", "Whey com morangos ou pão integral com proteína"),
+        ("Jantar", "Omelete ou prato leve com proteína + salada")
+    ],
+    "Sexta-feira": [
+        ("Jejum", "Dia de jejum com até 500 calorias"),
+        ("Almoço", "Frango grelhado + arroz integral + legumes + salada"),
+        ("Lanche", "Whey com morangos ou iogurte com whey"),
+        ("Jantar", "Wrap ou omelete com folhas verdes e azeite")
+    ],
+    "Sábado": [
+        ("Café da manhã", "Crepioca de queijo cottage + café"),
+        ("Almoço", "Peito de frango ao forno + arroz integral + salada"),
+        ("Lanche", "Mix de nozes + suco de laranja natural"),
+        ("Jantar", "Tilápia assada + legumes + azeite")
+    ],
+    "Domingo": [
+        ("Café da manhã", "Cuscuz com ovo mexido + café"),
+        ("Almoço", "Peixe grelhado + batata-doce + salada"),
+        ("Lanche", "Iogurte + frutas"),
+        ("Jantar", "Sopa de legumes com frango desfiado")
+    ]
+}
 
-# JEJUM (aparece só seg/qua/sex)
-jejum = False
-if dia in ["Segunda-feira", "Quarta-feira", "Sexta-feira"]:
-    jejum = st.checkbox("⏱️ Dia de Jejum (Seg/Qua/Sex)")
+# -----------------------------
+# Treinos musculação
+# -----------------------------
+treinos = {
+    "A - Pernas e Core": [
+        ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
+        ("Leg Press 45°", "https://www.youtube.com/watch?v=IZxyjW7MPJQ"),
+        ("Stiff com Halteres", "https://www.youtube.com/watch?v=6P2QcD3jN8w"),
+        ("Afundo com Passada", "https://www.youtube.com/watch?v=QF0BQS2W80k"),
+        ("Elevação de Panturrilha", "https://www.youtube.com/watch?v=-M4-G8p8fmc"),
+        ("Prancha Abdominal", "https://www.youtube.com/watch?v=ASdvN_XEl_c")
+    ],
+    "B - Peito, Tríceps e Ombros": [
+        ("Supino Reto com Barra", "https://www.youtube.com/watch?v=rT7DgCr-3pg"),
+        ("Supino Inclinado com Halteres", "https://www.youtube.com/watch?v=8iPEnn-ltC8"),
+        ("Desenvolvimento Militar", "https://www.youtube.com/watch?v=B-aVuyhvLHU"),
+        ("Tríceps Testa", "https://www.youtube.com/watch?v=6SS6K3lAwZ8"),
+        ("Tríceps Corda no Cross", "https://www.youtube.com/watch?v=vB5OHsJ3EME"),
+        ("Abdominal Oblíquo", "https://www.youtube.com/watch?v=E4h40NOUOHM")
+    ],
+    "C - Costas e Bíceps": [
+        ("Barra Fixa", "https://www.youtube.com/watch?v=HRVvH5u6SGc"),
+        ("Remada Curvada com Barra", "https://www.youtube.com/watch?v=vT2GjY_Umpw"),
+        ("Pulldown na Polia", "https://www.youtube.com/watch?v=CAwf7n6Luuc"),
+        ("Rosca Direta com Barra EZ", "https://www.youtube.com/watch?v=kwG2ipFRgfo"),
+        ("Rosca Martelo com Halteres", "https://www.youtube.com/watch?v=zC3nLlEvin4"),
+        ("Hiperextensão Lombar", "https://www.youtube.com/watch?v=ph3pddpKzzw")
+    ]
+}
 
-# --- TREINO ---
-st.markdown("## 🏋️ Treino do Dia")
-check_treino_a = st.checkbox("Treino A – Pernas e Core")
-check_treino_b = st.checkbox("Treino B – Peito e Tríceps")
-check_treino_c = st.checkbox("Treino C – Costas e Bíceps")
+# -----------------------------
+# Cardápio com checkbox
+# -----------------------------
+st.subheader("🍽️ Cardápio do Dia")
+refeicoes_dia = []
+with st.form("form_cardapio"):
+    for refeicao, descricao in cardapio[dia]:
+        marcado = st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}")
+        if marcado:
+            refeicoes_dia.append(f"{refeicao}: {descricao}")
+    submit_cardapio = st.form_submit_button("✅ Salvar refeições concluídas")
 
-# --- CARDIO ---
-st.markdown("## 🏃 Cardio")
-check_corrida = st.checkbox("🏃 Corrida")
-check_natacao = st.checkbox("🏊 Natação")
+# -----------------------------
+# Treinos com checkbox
+# -----------------------------
+st.subheader("🏋️ Exercícios de Musculação")
+tipo_treino = st.selectbox("Escolha o tipo de treino", list(treinos.keys()))
+treinos_dia = []
+with st.form("form_treino"):
+    for exercicio, link in treinos[tipo_treino]:
+        marcado = st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
+        if marcado:
+            treinos_dia.append(exercicio)
+    submit_treino = st.form_submit_button("✅ Salvar treino realizado")
 
-# --- BOTÃO DE ENVIO ---
-if st.button("💾 Salvar Dia"):
-    dados = {
+# -----------------------------
+# Cardio do dia
+# -----------------------------
+st.subheader("🏃 Cardio")
+cardio_dia = []
+if dia in ["Segunda-feira", "Sábado", "Domingo"]:
+    if st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}"):
+        cardio_dia.append("Corrida")
+if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
+    if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
+        cardio_dia.append("Natação")
+
+# -----------------------------
+# Envio automático para n8n
+# -----------------------------
+def enviar_para_n8n(dia, refeicoes, treino, cardio):
+    webhook_url = "https://1bfd4a66ff01.ngrok-free.app/webhook/guia-treino"
+    payload = {
         "dia": dia,
-        "jejum": jejum,
-        "cardapio": {
-            "cafe": check_cafe,
-            "almoco": check_almoco,
-            "lanche": check_lanche,
-            "jantar": check_jantar
-        },
-        "treino": {
-            "treino_a": check_treino_a,
-            "treino_b": check_treino_b,
-            "treino_c": check_treino_c
-        },
-        "cardio": {
-            "corrida": check_corrida,
-            "natacao": check_natacao
-        }
+        "refeicoes": refeicoes,
+        "treino": treino,
+        "cardio": cardio,
+        "timestamp": dt.now().isoformat()
     }
-
     try:
-        webhook_url = "https://1bfd4a66ff01.ngrok-free.app/webhook/guia-treino"  # sua URL do n8n via ngrok
-        res = requests.post(webhook_url, json=dados)
-        if res.status_code == 200:
-            st.success("✅ Dados enviados com sucesso!")
+        r = requests.post(webhook_url, json=payload)
+        if r.status_code == 200:
+            st.success("✅ Dados enviados com sucesso ao n8n e salvos na planilha!")
         else:
-            st.error(f"❌ Erro ao enviar dados: {res.status_code}")
+            st.warning(f"⚠️ Erro {r.status_code} ao enviar para o n8n.")
     except Exception as e:
-        st.error(f"Erro de conexão com webhook: {e}")
+        st.error(f"Erro ao conectar com webhook: {e}")
+
+if submit_cardapio or submit_treino:
+    enviar_para_n8n(dia, refeicoes_dia, treinos_dia, cardio_dia)
+
+st.markdown("---")
+st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
+
