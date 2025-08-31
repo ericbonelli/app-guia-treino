@@ -99,28 +99,24 @@ elif dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
     if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
         cardio_dia.append("Natação")
 
-# --- ENVIO PARA GOOGLE SHEETS ---
-st.markdown("### 📤 Salvar no Google Sheets")
-if st.button("📤 Enviar Dia para Planilha"):
+# --- ENVIO DIRETO PARA GOOGLE SHEETS ---
+st.markdown("### 📤 Salvar e Enviar para Google Sheets")
+if st.button("📤 Enviar"):
     try:
-        # 1. Autenticar
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gspread"], scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
         client = gspread.authorize(creds)
+        sheet = client.open("Registro Diário Treino e Alimentação").sheet1  # Nome exato da sua planilha
 
-        # 2. Abrir planilha (crie antes no Google Drive)
-        sheet = client.open("GuiaTreinoAlimentacao").sheet1  # Altere se quiser aba específica
-
-        # 3. Adicionar linha
-        nova_linha = [
+        sheet.append_row([
             dt.now().strftime("%Y-%m-%d %H:%M:%S"),
             dia,
             ", ".join(refeicoes_dia),
             ", ".join(treinos_dia),
             ", ".join(cardio_dia)
-        ]
-        sheet.append_row(nova_linha)
-        st.success("✅ Dados salvos no Google Sheets!")
+        ])
+
+        st.success("✅ Dados enviados com sucesso para o Google Sheets!")
 
     except Exception as e:
         st.error(f"Erro ao salvar na planilha: {e}")
