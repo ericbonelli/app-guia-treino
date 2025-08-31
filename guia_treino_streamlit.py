@@ -1,8 +1,8 @@
 import streamlit as st
 import datetime
-from datetime import datetime as dt
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials 
+from datetime import datetime as dt
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
