@@ -102,6 +102,25 @@ elif dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
 # --- ENVIO PARA GOOGLE SHEETS ---
 st.markdown("### 📤 Salvar e Enviar para Google Sheets")
 
+# --- DEBUG: Verificar credenciais e permissões ---
+with st.expander("🛠️ Testar conexão com Google Sheets (debug)"):
+    if st.button("🔍 Testar credenciais"):
+        try:
+            creds = Credentials.from_service_account_info(
+                st.secrets["gcp_service_account"],
+                scopes=["https://www.googleapis.com/auth/spreadsheets"]
+            )
+            client = gspread.authorize(creds)
+            user_info = creds.service_account_email
+            sheet_list = client.openall()
+            nomes_planilhas = [s.title for s in sheet_list]
+
+            st.success(f"✅ Credencial válida: `{user_info}`")
+            st.info(f"🔍 Planilhas acessíveis: {nomes_planilhas}")
+
+        except Exception as e:
+            st.error(f"❌ Falha na credencial: {e}")
+
 if st.button("📤 Enviar Dia para Registro"):
     try:
         # 1. Autenticação com credenciais do Streamlit secrets
