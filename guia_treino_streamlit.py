@@ -1,8 +1,8 @@
 import streamlit as st
 import datetime
-import requests
 from datetime import datetime as dt
-from urllib.parse import urlencode
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
@@ -99,31 +99,37 @@ elif dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
     if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
         cardio_dia.append("Natação")
 
-# --- ENVIO VIA HTTP (ou Webhook local) ---
-st.markdown("### 📤 Salvar e Enviar")
-if st.button("📤 Enviar Dia para Registro"):
-    webhook_url = "http://localhost:5678/webhook-test/e310c35b-76de-4f0d-8008-30b9f2e27273"  # Altere para sua URL real
-    payload = {
-        "dia": dia,
-        "refeicoes": refeicoes_dia,
-        "treino": treinos_dia,
-        "cardio": cardio_dia,
-        "timestamp": dt.now().isoformat()
-    }
+# --- ENVIO PARA GOOGLE SHEETS ---
+st.markdown("### 📤 Salvar no Google Sheets")
+if st.button("📤 Enviar Dia para Planilha"):
     try:
-        r = requests.post(webhook_url, json=payload, headers={"Content-Type": "application/json"})
-        if r.status_code == 200:
-            st.success("✅ Dados enviados com sucesso ao n8n!")
-        else:
-            st.warning(f"⚠️ Erro {r.status_code} ao enviar para o n8n.")
-    except Exception as e:
-        st.error(f"Erro ao conectar com webhook: {e}")
+        # 1. Autenticar
+        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gspread"], scope)
+        client = gspread.authorize(creds)
 
-# --- EXPORTAÇÃO COMO JSON PARA GET (API simulada para n8n) ---
+        # 2. Abrir planilha (crie antes no Google Drive)
+        sheet = client.open("GuiaTreinoAlimentacao").sheet1  # Altere se quiser aba específica
+
+        # 3. Adicionar linha
+        nova_linha = [
+            dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+            dia,
+            ", ".join(refeicoes_dia),
+            ", ".join(treinos_dia),
+            ", ".join(cardio_dia)
+        ]
+        sheet.append_row(nova_linha)
+        st.success("✅ Dados salvos no Google Sheets!")
+
+    except Exception as e:
+        st.error(f"Erro ao salvar na planilha: {e}")
+
+# --- API GET (simulada)
 st.markdown("---")
 st.markdown("### 🔄 Obter JSON da Página")
-params = st.experimental_get_query_params()
-modo_api = params.get("api", [""])[0] == "guia"
+params = st.query_params
+modo_api = params.get("api", "") == "guia"
 
 dados = {
     "dia": dia,
@@ -137,7 +143,7 @@ if modo_api:
     st.json(dados)
 else:
     st.markdown("🔗 Acesse como API para n8n via:")
-    st.code(f"{st.get_url()}?api=guia", language="bash")
+    st.code(f"{st.runtime.get_url()}?api=guia", language="bash")
 
 st.markdown("---")
-st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
+st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
