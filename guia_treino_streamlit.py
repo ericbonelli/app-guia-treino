@@ -1,25 +1,23 @@
 import streamlit as st
 import datetime
 import requests
+from datetime import datetime as dt
 
-# CONFIG
+# Configuração da página
 st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
 st.title("📘 Guia de Treino + Alimentação Diária")
-
 st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
 
-# ------------------------------------------
-# Data e Dia da Semana
-# ------------------------------------------
+# -----------------------------
+# Dia da semana (padrão: hoje)
+# -----------------------------
 dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
 hoje_pt = dias_semana[datetime.datetime.today().weekday()]
 dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
 
-data_hoje = datetime.datetime.today().strftime('%Y-%m-%d')
-
-# ------------------------------------------
-# Cardápio
-# ------------------------------------------
+# -----------------------------
+# Cardápio com jejum seg/qua/sex
+# -----------------------------
 cardapio = {
     "Segunda-feira": [
         ("Jejum", "Dia de jejum com até 500 calorias"),
@@ -65,9 +63,9 @@ cardapio = {
     ]
 }
 
-# ------------------------------------------
-# Treinos
-# ------------------------------------------
+# -----------------------------
+# Treinos musculação
+# -----------------------------
 treinos = {
     "A - Pernas e Core": [
         ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
@@ -95,60 +93,67 @@ treinos = {
     ]
 }
 
-# ------------------------------------------
-# FORMULÁRIOS
-# ------------------------------------------
+# -----------------------------
+# Cardápio com checkbox
+# -----------------------------
 st.subheader("🍽️ Cardápio do Dia")
-refeicoes_check = []
+refeicoes_dia = []
 with st.form("form_cardapio"):
     for refeicao, descricao in cardapio[dia]:
-        check = st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}")
-        refeicoes_check.append((refeicao, check))
-    st.form_submit_button("✅ Salvar refeições concluídas")
+        marcado = st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}")
+        if marcado:
+            refeicoes_dia.append(f"{refeicao}: {descricao}")
+    submit_cardapio = st.form_submit_button("✅ Salvar refeições concluídas")
 
+# -----------------------------
+# Treinos com checkbox
+# -----------------------------
 st.subheader("🏋️ Exercícios de Musculação")
 tipo_treino = st.selectbox("Escolha o tipo de treino", list(treinos.keys()))
-exercicios_check = []
+treinos_dia = []
 with st.form("form_treino"):
     for exercicio, link in treinos[tipo_treino]:
-        check = st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
-        exercicios_check.append((exercicio, check))
-    st.form_submit_button("✅ Salvar treino realizado")
+        marcado = st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
+        if marcado:
+            treinos_dia.append(exercicio)
+    submit_treino = st.form_submit_button("✅ Salvar treino realizado")
 
-# ------------------------------------------
-# Cardio
-# ------------------------------------------
+# -----------------------------
+# Cardio do dia
+# -----------------------------
 st.subheader("🏃 Cardio")
-cardio_check = False
+cardio_dia = []
 if dia in ["Segunda-feira", "Sábado", "Domingo"]:
-    cardio_check = st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}")
+    if st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}"):
+        cardio_dia.append("Corrida")
 if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
-    cardio_check = st.checkbox("Natação (45min)", key=f"natacao_{dia}")
+    if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
+        cardio_dia.append("Natação")
 
-# ------------------------------------------
-# Envio para n8n via Webhook
-# ------------------------------------------
-st.markdown("### 🔁 Enviar para n8n")
-webhook_url = "https://1bfd4a66ff01.ngrok-free.app/webhook/guia-treino"  # URL do seu ngrok + path configurado
-
-if st.button("🚀 Enviar progresso para n8n"):
+# -----------------------------
+# Envio automático para n8n
+# -----------------------------
+def enviar_para_n8n(dia, refeicoes, treino, cardio):
+    webhook_url = "https://1bfd4a66ff01.ngrok-free.app/webhook/guia-treino"
     payload = {
-        "data": data_hoje,
         "dia": dia,
-        "cardapio": [r[0] for r in refeicoes_check if r[1]],
-        "treino": [e[0] for e in exercicios_check if e[1]],
-        "cardio": "Sim" if cardio_check else "Não",
-        "tipo_treino": tipo_treino
+        "refeicoes": refeicoes,
+        "treino": treino,
+        "cardio": cardio,
+        "timestamp": dt.now().isoformat()
     }
     try:
-        res = requests.post(webhook_url, json=payload)
-        if res.status_code == 200:
-            st.success("✅ Dados enviados com sucesso para o n8n!")
+        r = requests.post(webhook_url, json=payload)
+        if r.status_code == 200:
+            st.success("✅ Dados enviados com sucesso ao n8n e salvos na planilha!")
         else:
-            st.error(f"Erro ao enviar dados: {res.status_code} - {res.text}")
+            st.warning(f"⚠️ Erro {r.status_code} ao enviar para o n8n.")
     except Exception as e:
-        st.error(f"Erro na requisição: {e}")
+        st.error(f"Erro ao conectar com webhook: {e}")
+
+if submit_cardapio or submit_treino:
+    enviar_para_n8n(dia, refeicoes_dia, treinos_dia, cardio_dia)
 
 st.markdown("---")
-st.caption("🔁 Integração com painel em andamento | Desenvolvido com ❤️ no Streamlit + n8n")
+st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
 
