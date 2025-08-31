@@ -126,7 +126,7 @@ if st.button("📤 Enviar Dia para Registro"):
         "timestamp": dt.now().isoformat()
     }
     try:
-        r = requests.post(webhook_url, json=payload)
+        r = requests.post(webhook_url,json=payload,headers={"Content-Type": "application/json"})
         if r.status_code == 200:
             st.success("✅ Dados enviados com sucesso ao n8n!")
         else:
