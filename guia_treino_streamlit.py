@@ -117,7 +117,7 @@ if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
 # Envio único
 st.markdown("### 📤 Salvar e Enviar")
 if st.button("📤 Enviar Dia para Registro"):
-    webhook_url = "https://1bfd4a66ff01.ngrok-free.app/webhook/guia-treino"
+    webhook_url = "http://localhost:5678/webhook-test/e310c35b-76de-4f0d-8008-30b9f2e27273"
     payload = {
         "dia": dia,
         "refeicoes": refeicoes_dia,
