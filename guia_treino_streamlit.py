@@ -99,27 +99,38 @@ elif dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
     if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
         cardio_dia.append("Natação")
 
-# --- ENVIO DIRETO PARA GOOGLE SHEETS ---
+# --- ENVIO PARA GOOGLE SHEETS ---
 st.markdown("### 📤 Salvar e Enviar para Google Sheets")
-if st.button("📤 Enviar"):
-    try:
-        scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
-        client = gspread.authorize(creds)
-        sheet = client.open("Registro Diário Treino e Alimentação").sheet1  # Nome exato da sua planilha
 
-        sheet.append_row([
+if st.button("📤 Enviar Dia para Registro"):
+    try:
+        # 1. Autenticação com credenciais do Streamlit secrets
+        creds = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=["https://www.googleapis.com/auth/spreadsheets"]
+        )
+
+        client = gspread.authorize(creds)
+
+        # 2. Abrir planilha e aba
+        sheet = client.open("Registro Diario Treino e Alimentacao")  # Nome da planilha no Google Drive
+        aba = sheet.worksheet("Dados")  # Nome da aba
+
+        # 3. Dados a registrar
+        linha = [
             dt.now().strftime("%Y-%m-%d %H:%M:%S"),
             dia,
             ", ".join(refeicoes_dia),
             ", ".join(treinos_dia),
             ", ".join(cardio_dia)
-        ])
+        ]
 
-        st.success("✅ Dados enviados com sucesso para o Google Sheets!")
+        # 4. Inserir nova linha
+        aba.append_row(linha)
+        st.success("✅ Dados salvos com sucesso na planilha!")
 
     except Exception as e:
-        st.error(f"Erro ao salvar na planilha: {e}")
+        st.error(f"❌ Erro ao salvar na planilha: {e}")
 
 st.markdown("---")
 st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
