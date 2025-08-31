@@ -23,7 +23,7 @@ def carregar_dados():
         scopes=scopes 
     )
     client = gspread.authorize(creds)
-    worksheet = client.open("Registro Diario Treino e Alimentacao").worksheet("Dados")
+    worksheet = client.open("Guia_Treino_Alimentacao").worksheet("Dados")
     registros = worksheet.get_all_records()
     return pd.DataFrame(registros)
 
