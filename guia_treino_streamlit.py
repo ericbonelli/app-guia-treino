@@ -133,7 +133,7 @@ if st.button("📤 Enviar Dia para Registro"):
         client = gspread.authorize(creds)
 
         # 2. Abrir planilha e aba
-        sheet = client.open("Registro Diario Treino e Alimentacao")  # Nome da planilha no Google Drive
+        sheet = client.open("Guia_Treino_Alimentacao")  # Nome da planilha no Google Drive
         aba = sheet.worksheet("Dados")  # Nome da aba
 
         # 3. Dados a registrar
