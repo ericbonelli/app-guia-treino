@@ -125,25 +125,5 @@ if st.button("📤 Enviar Dia para Planilha"):
     except Exception as e:
         st.error(f"Erro ao salvar na planilha: {e}")
 
-# --- API GET (simulada)
-st.markdown("---")
-st.markdown("### 🔄 Obter JSON da Página")
-params = st.query_params
-modo_api = params.get("api", "") == "guia"
-
-dados = {
-    "dia": dia,
-    "refeicoes": refeicoes_dia,
-    "treino": treinos_dia,
-    "cardio": cardio_dia,
-    "timestamp": dt.now().isoformat()
-}
-
-if modo_api:
-    st.json(dados)
-else:
-    st.markdown("🔗 Acesse como API para n8n via:")
-    st.code(f"{st.runtime.get_url()}?api=guia", language="bash")
-
 st.markdown("---")
 st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
