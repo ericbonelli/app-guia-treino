@@ -8,16 +8,12 @@ st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
 st.title("📘 Guia de Treino + Alimentação Diária")
 st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
 
-# -----------------------------
 # Dia da semana (padrão: hoje)
-# -----------------------------
 dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
 hoje_pt = dias_semana[datetime.datetime.today().weekday()]
 dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
 
-# -----------------------------
 # Cardápio com jejum seg/qua/sex
-# -----------------------------
 cardapio = {
     "Segunda-feira": [
         ("Jejum", "Dia de jejum com até 500 calorias"),
@@ -63,9 +59,7 @@ cardapio = {
     ]
 }
 
-# -----------------------------
 # Treinos musculação
-# -----------------------------
 treinos = {
     "A - Pernas e Core": [
         ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
@@ -93,34 +87,24 @@ treinos = {
     ]
 }
 
-# -----------------------------
 # Cardápio com checkbox
-# -----------------------------
 st.subheader("🍽️ Cardápio do Dia")
 refeicoes_dia = []
-with st.form("form_cardapio"):
-    for refeicao, descricao in cardapio[dia]:
-        marcado = st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}")
-        if marcado:
-            refeicoes_dia.append(f"{refeicao}: {descricao}")
-    submit_cardapio = st.form_submit_button("✅ Salvar refeições concluídas")
+for refeicao, descricao in cardapio[dia]:
+    marcado = st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}")
+    if marcado:
+        refeicoes_dia.append(f"{refeicao}: {descricao}")
 
-# -----------------------------
 # Treinos com checkbox
-# -----------------------------
 st.subheader("🏋️ Exercícios de Musculação")
 tipo_treino = st.selectbox("Escolha o tipo de treino", list(treinos.keys()))
 treinos_dia = []
-with st.form("form_treino"):
-    for exercicio, link in treinos[tipo_treino]:
-        marcado = st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
-        if marcado:
-            treinos_dia.append(exercicio)
-    submit_treino = st.form_submit_button("✅ Salvar treino realizado")
+for exercicio, link in treinos[tipo_treino]:
+    marcado = st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
+    if marcado:
+        treinos_dia.append(exercicio)
 
-# -----------------------------
 # Cardio do dia
-# -----------------------------
 st.subheader("🏃 Cardio")
 cardio_dia = []
 if dia in ["Segunda-feira", "Sábado", "Domingo"]:
@@ -130,30 +114,25 @@ if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
     if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
         cardio_dia.append("Natação")
 
-# -----------------------------
-# Envio automático para n8n
-# -----------------------------
-def enviar_para_n8n(dia, refeicoes, treino, cardio):
+# Envio único
+st.markdown("### 📤 Salvar e Enviar")
+if st.button("📤 Enviar Dia para Registro"):
     webhook_url = "https://1bfd4a66ff01.ngrok-free.app/webhook/guia-treino"
     payload = {
         "dia": dia,
-        "refeicoes": refeicoes,
-        "treino": treino,
-        "cardio": cardio,
+        "refeicoes": refeicoes_dia,
+        "treino": treinos_dia,
+        "cardio": cardio_dia,
         "timestamp": dt.now().isoformat()
     }
     try:
         r = requests.post(webhook_url, json=payload)
         if r.status_code == 200:
-            st.success("✅ Dados enviados com sucesso ao n8n e salvos na planilha!")
+            st.success("✅ Dados enviados com sucesso ao n8n!")
         else:
             st.warning(f"⚠️ Erro {r.status_code} ao enviar para o n8n.")
     except Exception as e:
         st.error(f"Erro ao conectar com webhook: {e}")
 
-if submit_cardapio or submit_treino:
-    enviar_para_n8n(dia, refeicoes_dia, treinos_dia, cardio_dia)
-
 st.markdown("---")
 st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
-
