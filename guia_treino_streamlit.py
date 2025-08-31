@@ -2,64 +2,51 @@ import streamlit as st
 import datetime
 import requests
 from datetime import datetime as dt
+from urllib.parse import urlencode
 
-# Configuração da página
+# --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Guia de Treino e Alimentação", layout="wide")
 st.title("📘 Guia de Treino + Alimentação Diária")
 st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens concluídos e salve seu progresso!")
 
-# Dia da semana (padrão: hoje)
+# --- SELEÇÃO DO DIA ---
 dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-hoje_pt = dias_semana[datetime.datetime.today().weekday()]
-dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=dias_semana.index(hoje_pt))
+hoje = datetime.datetime.today().weekday()
+dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=hoje)
 
-# Cardápio com jejum seg/qua/sex
+# --- CARDÁPIO ---
 cardapio = {
-    "Segunda-feira": [
-        ("Jejum", "Dia de jejum com até 500 calorias"),
-        ("Almoço", "150g frango grelhado + 80g arroz integral + salada com azeite"),
-        ("Lanche", "Whey protein com água ou iogurte desnatado com morangos"),
-        ("Jantar", "Omelete 4 ovos ou wrap integral com frango e ricota")
-    ],
-    "Terça-feira": [
-        ("Café da manhã", "2 ovos + pão integral + queijo branco"),
-        ("Almoço", "Filé de frango + arroz integral + feijão + legumes + salada"),
-        ("Lanche", "Whey com água ou iogurte desnatado + morangos ou wrap"),
-        ("Jantar", "Omelete ou wrap integral com carne moída e vegetais")
-    ],
-    "Quarta-feira": [
-        ("Jejum", "Dia de jejum com até 500 calorias"),
-        ("Almoço", "Frango grelhado + arroz + legumes + azeite"),
-        ("Lanche", "Iogurte ou pão com frango e requeijão light"),
-        ("Jantar", "Wrap de Rap10 com carne moída + alface + tomate")
-    ],
-    "Quinta-feira": [
-        ("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
-        ("Almoço", "Peixe ou carne + arroz integral + legumes + salada"),
-        ("Lanche", "Whey com morangos ou pão integral com proteína"),
-        ("Jantar", "Omelete ou prato leve com proteína + salada")
-    ],
-    "Sexta-feira": [
-        ("Jejum", "Dia de jejum com até 500 calorias"),
-        ("Almoço", "Frango grelhado + arroz integral + legumes + salada"),
-        ("Lanche", "Whey com morangos ou iogurte com whey"),
-        ("Jantar", "Wrap ou omelete com folhas verdes e azeite")
-    ],
-    "Sábado": [
-        ("Café da manhã", "Crepioca de queijo cottage + café"),
-        ("Almoço", "Peito de frango ao forno + arroz integral + salada"),
-        ("Lanche", "Mix de nozes + suco de laranja natural"),
-        ("Jantar", "Tilápia assada + legumes + azeite")
-    ],
-    "Domingo": [
-        ("Café da manhã", "Cuscuz com ovo mexido + café"),
-        ("Almoço", "Peixe grelhado + batata-doce + salada"),
-        ("Lanche", "Iogurte + frutas"),
-        ("Jantar", "Sopa de legumes com frango desfiado")
-    ]
+    "Segunda-feira": [("Jejum", "Dia de jejum com até 500 calorias"),
+                      ("Almoço", "150g frango grelhado + 80g arroz integral + salada com azeite"),
+                      ("Lanche", "Whey protein com água ou iogurte desnatado com morangos"),
+                      ("Jantar", "Omelete 4 ovos ou wrap integral com frango e ricota")],
+    "Terça-feira": [("Café da manhã", "2 ovos + pão integral + queijo branco"),
+                    ("Almoço", "Filé de frango + arroz integral + feijão + legumes + salada"),
+                    ("Lanche", "Whey com água ou iogurte desnatado + morangos ou wrap"),
+                    ("Jantar", "Omelete ou wrap integral com carne moída e vegetais")],
+    "Quarta-feira": [("Jejum", "Dia de jejum com até 500 calorias"),
+                     ("Almoço", "Frango grelhado + arroz + legumes + azeite"),
+                     ("Lanche", "Iogurte ou pão com frango e requeijão light"),
+                     ("Jantar", "Wrap de Rap10 com carne moída + alface + tomate")],
+    "Quinta-feira": [("Café da manhã", "Shake de whey + frutas vermelhas + linhaça"),
+                     ("Almoço", "Peixe ou carne + arroz integral + legumes + salada"),
+                     ("Lanche", "Whey com morangos ou pão integral com proteína"),
+                     ("Jantar", "Omelete ou prato leve com proteína + salada")],
+    "Sexta-feira": [("Jejum", "Dia de jejum com até 500 calorias"),
+                    ("Almoço", "Frango grelhado + arroz integral + legumes + salada"),
+                    ("Lanche", "Whey com morangos ou iogurte com whey"),
+                    ("Jantar", "Wrap ou omelete com folhas verdes e azeite")],
+    "Sábado": [("Café da manhã", "Crepioca de queijo cottage + café"),
+               ("Almoço", "Peito de frango ao forno + arroz integral + salada"),
+               ("Lanche", "Mix de nozes + suco de laranja natural"),
+               ("Jantar", "Tilápia assada + legumes + azeite")],
+    "Domingo": [("Café da manhã", "Cuscuz com ovo mexido + café"),
+                ("Almoço", "Peixe grelhado + batata-doce + salada"),
+                ("Lanche", "Iogurte + frutas"),
+                ("Jantar", "Sopa de legumes com frango desfiado")]
 }
 
-# Treinos musculação
+# --- TREINOS ---
 treinos = {
     "A - Pernas e Core": [
         ("Agachamento Livre", "https://www.youtube.com/watch?v=1oed-UmAxFs"),
@@ -87,37 +74,35 @@ treinos = {
     ]
 }
 
-# Cardápio com checkbox
+# --- CHECKBOXES: Alimentação ---
 st.subheader("🍽️ Cardápio do Dia")
 refeicoes_dia = []
 for refeicao, descricao in cardapio[dia]:
-    marcado = st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}")
-    if marcado:
+    if st.checkbox(f"{refeicao}: {descricao}", key=f"ref_{refeicao}_{dia}"):
         refeicoes_dia.append(f"{refeicao}: {descricao}")
 
-# Treinos com checkbox
+# --- CHECKBOXES: Treinos ---
 st.subheader("🏋️ Exercícios de Musculação")
 tipo_treino = st.selectbox("Escolha o tipo de treino", list(treinos.keys()))
 treinos_dia = []
 for exercicio, link in treinos[tipo_treino]:
-    marcado = st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}")
-    if marcado:
+    if st.checkbox(f"[{exercicio}]({link})", key=f"ex_{exercicio}_{dia}"):
         treinos_dia.append(exercicio)
 
-# Cardio do dia
+# --- CHECKBOXES: Cardio ---
 st.subheader("🏃 Cardio")
 cardio_dia = []
 if dia in ["Segunda-feira", "Sábado", "Domingo"]:
     if st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}"):
         cardio_dia.append("Corrida")
-if dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
+elif dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
     if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
         cardio_dia.append("Natação")
 
-# Envio único
+# --- ENVIO VIA HTTP (ou Webhook local) ---
 st.markdown("### 📤 Salvar e Enviar")
 if st.button("📤 Enviar Dia para Registro"):
-    webhook_url = "http://localhost:5678/webhook-test/e310c35b-76de-4f0d-8008-30b9f2e27273"
+    webhook_url = "http://localhost:5678/webhook-test/e310c35b-76de-4f0d-8008-30b9f2e27273"  # Altere para sua URL real
     payload = {
         "dia": dia,
         "refeicoes": refeicoes_dia,
@@ -126,13 +111,33 @@ if st.button("📤 Enviar Dia para Registro"):
         "timestamp": dt.now().isoformat()
     }
     try:
-        r = requests.post(webhook_url,json=payload,headers={"Content-Type": "application/json"})
+        r = requests.post(webhook_url, json=payload, headers={"Content-Type": "application/json"})
         if r.status_code == 200:
             st.success("✅ Dados enviados com sucesso ao n8n!")
         else:
             st.warning(f"⚠️ Erro {r.status_code} ao enviar para o n8n.")
     except Exception as e:
         st.error(f"Erro ao conectar com webhook: {e}")
+
+# --- EXPORTAÇÃO COMO JSON PARA GET (API simulada para n8n) ---
+st.markdown("---")
+st.markdown("### 🔄 Obter JSON da Página")
+params = st.experimental_get_query_params()
+modo_api = params.get("api", [""])[0] == "guia"
+
+dados = {
+    "dia": dia,
+    "refeicoes": refeicoes_dia,
+    "treino": treinos_dia,
+    "cardio": cardio_dia,
+    "timestamp": dt.now().isoformat()
+}
+
+if modo_api:
+    st.json(dados)
+else:
+    st.markdown("🔗 Acesse como API para n8n via:")
+    st.code(f"{st.get_url()}?api=guia", language="bash")
 
 st.markdown("---")
 st.caption("🔁 Integração futura com painel histórico e analytics | Desenvolvido com ❤️ no Streamlit")
