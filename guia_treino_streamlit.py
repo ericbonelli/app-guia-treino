@@ -14,9 +14,13 @@ st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens co
 # CONEXÃO COM PLANILHA
 @st.cache_data(ttl=300)
 def carregar_dados():
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
     creds = Credentials.from_service_account_info(
         st.secrets["gcp_service_account"],
-        scopes=["https://www.googleapis.com/auth/spreadsheets"]
+        scopes=scopes 
     )
     client = gspread.authorize(creds)
     worksheet = client.open("Registro Diario Treino e Alimentacao").worksheet("Dados")
