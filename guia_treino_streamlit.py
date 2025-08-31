@@ -105,9 +105,10 @@ st.markdown("### 📤 Salvar e Enviar para Google Sheets")
 if st.button("📤 Enviar Dia para Registro"):
     try:
         # 1. Autenticação com credenciais do Streamlit secrets
+        scopes = ["https://www.googleapis.com/auth/spreadsheets"]
         creds = Credentials.from_service_account_info(
             st.secrets["gcp_service_account"],
-            scopes=["https://www.googleapis.com/auth/spreadsheets"]
+            scopes=scopes 
         )
 
         client = gspread.authorize(creds)
