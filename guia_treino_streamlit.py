@@ -27,10 +27,22 @@ def carregar_dados():
     registros = worksheet.get_all_records()
     return pd.DataFrame(registros)
 
-# --- SELEÇÃO DO DIA ---
-dias_semana = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-hoje = datetime.datetime.today().weekday()
-dia = st.selectbox("📅 Escolha o dia da semana", dias_semana, index=hoje)
+# --- SELEÇÃO DA DATA (nova lógica) ---
+data_escolhida = st.date_input("📅 Escolha a data do registro", value=datetime.date.today())
+dia_semana = data_escolhida.strftime("%A")
+
+# Traduzir dia da semana para PT-BR
+dias_semana_pt = {
+    "Monday": "Segunda-feira",
+    "Tuesday": "Terça-feira",
+    "Wednesday": "Quarta-feira",
+    "Thursday": "Quinta-feira",
+    "Friday": "Sexta-feira",
+    "Saturday": "Sábado",
+    "Sunday": "Domingo"
+}
+dia = dias_semana_pt.get(dia_semana, "Dia inválido")
+st.markdown(f"🗓️ **Dia escolhido:** {dia} ({data_escolhida.strftime('%d/%m/%Y')})")
 
 # --- CARDÁPIO ---
 cardapio = {
@@ -140,8 +152,8 @@ if st.button("📤 Enviar Dia para Registro"):
 
         # 3. Dados a registrar
         linha = [
-            dt.now().strftime("%Y-%m-%d"),
-            dia,
+            data_escolhida.strftime("%Y-%m-%d),  # timestamp
+            dia,  # dia da semana derivado
             ", ".join(refeicoes_dia),
             ", ".join(treinos_dia),
             ", ".join(cardio_dia)
