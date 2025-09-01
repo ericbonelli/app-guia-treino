@@ -233,6 +233,10 @@ with st.expander("Editar Registro Existente"):
 
         if st.button("💾 Salvar Edição"):
             try:
+                scopes = [
+                    "https://www.googleapis.com/auth/spreadsheets",
+                    "https://www.googleapis.com/auth/drive"
+                ]
                 creds = Credentials.from_service_account_info(
                     st.secrets["gcp_service_account"],
                     scopes=scopes 
