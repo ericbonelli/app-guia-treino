@@ -134,7 +134,6 @@ st.markdown("### 📤 Salvar e Enviar para Google Sheets")
 
 if st.button("📤 Enviar Dia para Registro"):
     try:
-        # 1. Autenticação com credenciais do Streamlit secrets
         scopes = [
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive"
@@ -143,31 +142,23 @@ if st.button("📤 Enviar Dia para Registro"):
             st.secrets["gcp_service_account"],
             scopes=scopes 
         )
-
         client = gspread.authorize(creds)
-
-        # 2. Abrir planilha e aba
-        sheet = client.open("Guia_Treino_Alimentacao")  # Nome da planilha no Google Drive
-        aba = sheet.worksheet("Dados")  # Nome da aba
-
-        # 3. Dados a registrar
+        sheet = client.open("Guia_Treino_Alimentacao")
+        aba = sheet.worksheet("Dados")
         linha = [
-            data_escolhida.strftime("%Y-%m-%d"),  # timestamp
-            dia,  # dia da semana derivado
+            data_escolhida.strftime("%Y-%m-%d"),
+            dia,
             ", ".join(refeicoes_dia),
             ", ".join(treinos_dia),
             ", ".join(cardio_dia)
         ]
-
-        # 4. Inserir nova linha
         aba.append_row(linha)
         st.success("✅ Dados salvos com sucesso na planilha!")
         st.cache_data.clear()
         st.rerun()
-
     except Exception as e:
         st.error(f"❌ Erro ao salvar na planilha: {e}")
-        
+
 # --- DASHBOARD E ANÁLISE DE PROGRESSO ---
 st.markdown("---")
 st.header("📊 Progresso e Análises")
@@ -175,12 +166,9 @@ st.header("📊 Progresso e Análises")
 df = carregar_dados()
 
 if not df.empty:
-    # Corrigir o tipo da data sem hora
     df['Data'] = pd.to_datetime(df['Timestamp'], errors='coerce').dt.date
     df['Treinos'] = df['Treinos'].apply(lambda x: str(x).split(", ") if isinstance(x, str) else [])
     df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x))
-
-    # ✅ Forçar datetime.date para garantir consistência
     df['Data'] = df['Data'].apply(lambda x: x if isinstance(x, datetime.date) else x.date())
 
     resumo7 = df[df['Data'] >= dt.now().date() - pd.Timedelta(days=7)]
@@ -198,7 +186,7 @@ if not df.empty:
     with gr1:
         st.subheader("📌 Dias com Registro")
         fig_dias = px.histogram(df, x='Data')
-        fig_dias.update_xaxes(type='category')  # 🔧 evita uso de eixo contínuo com hora
+        fig_dias.update_xaxes(type='category')
         st.plotly_chart(fig_dias, use_container_width=True)
 
         st.subheader("💪 Exercícios mais frequentes")
@@ -213,7 +201,7 @@ if not df.empty:
         st.subheader("📈 Evolução dos treinos")
         df_agrupado = df.groupby('Data', as_index=False)['Qtd_Treinos'].sum()
         fig_evo = px.line(df_agrupado, x='Data', y='Qtd_Treinos', markers=True)
-        fig_evo.update_xaxes(type='category')  # 🔧 evita hora
+        fig_evo.update_xaxes(type='category')
         st.plotly_chart(fig_evo, use_container_width=True)
 
         st.subheader("📆 Últimos 7 dias")
@@ -223,6 +211,54 @@ if not df.empty:
 else:
     st.info("Nenhum dado registrado ainda.")
 
+# --- EDIÇÃO DE REGISTROS ANTERIORES ---
+st.markdown("---")
+st.subheader("✏️ Editar Registros Anteriores")
+
+with st.expander("Editar Registro Existente"):
+    if not df.empty:
+        datas_existentes = sorted(df['Data'].unique(), reverse=True)
+        data_edicao = st.selectbox("Escolha a data para editar:", datas_existentes)
+        linha_original = df[df['Data'] == data_edicao].iloc[0]
+
+        st.write(f"### {linha_original['Dia']} – {data_edicao}")
+
+        refeicoes_antigas = str(linha_original['Refeições']).split(", ")
+        treinos_antigos = str(linha_original['Treinos']).split(", ")
+        cardio_antigo = str(linha_original['Cardio'])
+
+        refeicoes_editadas = st.text_area("🍽️ Refeições:", value=", ".join(refeicoes_antigas))
+        treinos_editados = st.text_area("🏋️ Treinos:", value=", ".join(treinos_antigos))
+        cardio_editado = st.text_input("🏃 Cardio:", value=cardio_antigo)
+
+        if st.button("💾 Salvar Edição"):
+            try:
+                creds = Credentials.from_service_account_info(
+                    st.secrets["gcp_service_account"],
+                    scopes=scopes 
+                )
+                client = gspread.authorize(creds)
+                aba = client.open("Guia_Treino_Alimentacao").worksheet("Dados")
+                todas = aba.get_all_records()
+
+                idx = next((i for i, row in enumerate(todas) if row['Timestamp'].startswith(str(data_edicao))), None)
+                if idx is not None:
+                    aba.delete_rows(idx + 2)
+                    nova = [
+                        str(data_edicao),
+                        linha_original['Dia'],
+                        refeicoes_editadas,
+                        treinos_editados,
+                        cardio_editado
+                    ]
+                    aba.insert_row(nova, idx + 2)
+                    st.success("Registro atualizado com sucesso!")
+                    st.cache_data.clear()
+                    st.rerun()
+                else:
+                    st.warning("Registro não localizado.")
+            except Exception as e:
+                st.error(f"Erro ao editar: {e}")
+
 st.markdown("---")
 st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
-
