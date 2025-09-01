@@ -216,3 +216,4 @@ else:
 
 st.markdown("---")
 st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
+
