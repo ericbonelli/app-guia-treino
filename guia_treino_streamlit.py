@@ -140,7 +140,7 @@ if st.button("📤 Enviar Dia para Registro"):
 
         # 3. Dados a registrar
         linha = [
-            dt.now().strftime("%Y-%m-%d %H:%M:%S"),
+            dt.now().strftime("%Y-%m-%d"),
             dia,
             ", ".join(refeicoes_dia),
             ", ".join(treinos_dia),
