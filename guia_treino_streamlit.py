@@ -152,7 +152,7 @@ if st.button("📤 Enviar Dia para Registro"):
 
         # 3. Dados a registrar
         linha = [
-            data_escolhida.strftime("%Y-%m-%d),  # timestamp
+            data_escolhida.strftime("%Y-%m-%d"),  # timestamp
             dia,  # dia da semana derivado
             ", ".join(refeicoes_dia),
             ", ".join(treinos_dia),
