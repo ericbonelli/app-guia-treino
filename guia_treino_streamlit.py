@@ -186,8 +186,8 @@ if not df.empty:
         st.metric("⏳ Jejum realizado", f"{jejum_count} dias", f"{jejum_pct:.1f}% dos dias")
 
         st.subheader("📈 Evolução dos treinos")
-        fig_evo = px.line(df, x='Timestamp', y=df['Treinos'].apply(lambda x: len(x.split(", ")) if x else 0),
-                          title="Nº de exercícios por dia", labels={"y": "Qtd. de Exercícios"})
+        df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x.split(", ")) if x else 0)
+        fig_evo = px.line(df, x='Timestamp', y='Qtd_Treinos', title="Nº de exercícios por dia", labels={"Qtd_Treinos": "Qtd. de Exercícios"})
         st.plotly_chart(fig_evo, use_container_width=True)
 else:
     st.info("Nenhum dado registrado ainda.")
