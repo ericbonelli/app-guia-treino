@@ -164,11 +164,12 @@ if not df.empty:
 
     with col1:
         st.subheader("✅ Dias Registrados")
-        df['Data'] = pd.to_datetime(df['Timestamp']).dt.date
+        df['Data'] = pd.to_datetime(df['Timestamp'], errors='coerce').dt.date
         fig_dias = px.histogram(df, x='Data', nbins=20, title="Dias com registro")
         st.plotly_chart(fig_dias, use_container_width=True)
 
         st.subheader("🏋️ Treinos mais frequentes")
+        df['Treinos'] = df['Treinos'].apply(lambda x: x if isinstance(x, str) else "")
         df['Treinos'] = df['Treinos'].str.split(", ")
         treino_explodido = df.explode('Treinos')
         fig_treino = px.histogram(treino_explodido, x='Treinos', title="Frequência dos Exercícios")
@@ -176,17 +177,19 @@ if not df.empty:
 
     with col2:
         st.subheader("💧 Dias com Cardio")
+        df['Cardio'] = df['Cardio'].apply(lambda x: x if isinstance(x, str) else "")
         cardio_count = df['Cardio'].apply(lambda x: len(x.strip()) > 0).sum()
         cardio_pct = cardio_count / len(df) * 100
         st.metric("🏃 Cardio realizado", f"{cardio_count} dias", f"{cardio_pct:.1f}% dos dias")
 
         st.subheader("🧘 Dias com Jejum")
+        df['Refeições'] = df['Refeições'].apply(lambda x: x if isinstance(x, str) else "")
         jejum_count = df['Refeições'].str.contains("Jejum").sum()
         jejum_pct = jejum_count / len(df) * 100
         st.metric("⏳ Jejum realizado", f"{jejum_count} dias", f"{jejum_pct:.1f}% dos dias")
 
         st.subheader("📈 Evolução dos treinos")
-        df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x.split(", ")) if x else 0)
+        df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x) if isinstance(x, list) else 0)
         fig_evo = px.line(df, x='Timestamp', y='Qtd_Treinos', title="Nº de exercícios por dia", labels={"Qtd_Treinos": "Qtd. de Exercícios"})
         st.plotly_chart(fig_evo, use_container_width=True)
 else:
