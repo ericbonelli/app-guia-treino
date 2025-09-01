@@ -13,7 +13,7 @@ st.markdown("Acompanhe sua rotina de treinos e alimentação. Marque os itens co
 
 # CONEXÃO COM PLANILHA
 @st.cache_data(ttl=300)
-def carregar_dados():
+def carregar_dados(forcar=False):
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
@@ -162,6 +162,8 @@ if st.button("📤 Enviar Dia para Registro"):
         # 4. Inserir nova linha
         aba.append_row(linha)
         st.success("✅ Dados salvos com sucesso na planilha!")
+        st.cache_data.clear()
+        st.rerun()
 
     except Exception as e:
         st.error(f"❌ Erro ao salvar na planilha: {e}")
