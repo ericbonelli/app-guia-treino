@@ -168,17 +168,23 @@ if st.button("📤 Enviar Dia para Registro"):
     except Exception as e:
         st.error(f"❌ Erro ao salvar na planilha: {e}")
         
-# DASHBOARD E ANÁLISE DE PROGRESSO
+# --- DASHBOARD E ANÁLISE DE PROGRESSO ---
 st.markdown("---")
 st.header("📊 Progresso e Análises")
+
 df = carregar_dados()
 
 if not df.empty:
+    # Corrigir o tipo da data sem hora
     df['Data'] = pd.to_datetime(df['Timestamp'], errors='coerce').dt.date
     df['Treinos'] = df['Treinos'].apply(lambda x: str(x).split(", ") if isinstance(x, str) else [])
     df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x))
 
+    # ✅ Forçar datetime.date para garantir consistência
+    df['Data'] = df['Data'].apply(lambda x: x if isinstance(x, datetime.date) else x.date())
+
     resumo7 = df[df['Data'] >= dt.now().date() - pd.Timedelta(days=7)]
+
     kpi1, kpi2, kpi3 = st.columns(3)
     kpi1.metric("📅 Dias registrados", f"{df['Data'].nunique()} dias")
     kpi2.metric("🏃 Cardio realizado", f"{df['Cardio'].apply(lambda x: len(str(x).strip()) > 0).sum()} dias")
@@ -192,6 +198,7 @@ if not df.empty:
     with gr1:
         st.subheader("📌 Dias com Registro")
         fig_dias = px.histogram(df, x='Data')
+        fig_dias.update_xaxes(type='category')  # 🔧 evita uso de eixo contínuo com hora
         st.plotly_chart(fig_dias, use_container_width=True)
 
         st.subheader("💪 Exercícios mais frequentes")
@@ -204,8 +211,9 @@ if not df.empty:
 
     with gr2:
         st.subheader("📈 Evolução dos treinos")
-        df_agrupado = df.groupby('Data')['Qtd_Treinos'].sum().reset_index()
+        df_agrupado = df.groupby('Data', as_index=False)['Qtd_Treinos'].sum()
         fig_evo = px.line(df_agrupado, x='Data', y='Qtd_Treinos', markers=True)
+        fig_evo.update_xaxes(type='category')  # 🔧 evita hora
         st.plotly_chart(fig_evo, use_container_width=True)
 
         st.subheader("📆 Últimos 7 dias")
