@@ -191,7 +191,7 @@ if not df.empty:
 
     with gr1:
         st.subheader("📌 Dias com Registro")
-        fig_dias = px.histogram(df, x='Data', nbins=10)
+        fig_dias = px.histogram(df, x='Data')
         st.plotly_chart(fig_dias, use_container_width=True)
 
         st.subheader("💪 Exercícios mais frequentes")
@@ -204,7 +204,8 @@ if not df.empty:
 
     with gr2:
         st.subheader("📈 Evolução dos treinos")
-        fig_evo = px.line(df, x='Data', y='Qtd_Treinos', markers=True)
+        df_agrupado = df.groupby('Data')['Qtd_Treinos'].sum().reset_index()
+        fig_evo = px.line(df_agrupado, x='Data', y='Qtd_Treinos', markers=True)
         st.plotly_chart(fig_evo, use_container_width=True)
 
         st.subheader("📆 Últimos 7 dias")
