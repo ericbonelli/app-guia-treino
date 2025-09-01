@@ -159,54 +159,46 @@ st.markdown("---")
 st.header("📊 Progresso e Análises")
 df = carregar_dados()
 
-
 if not df.empty:
-df['Data'] = pd.to_datetime(df['Timestamp'], errors='coerce').dt.date
-df['Treinos'] = df['Treinos'].apply(lambda x: str(x).split(", ") if isinstance(x, str) else [])
-df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x))
+    df['Data'] = pd.to_datetime(df['Timestamp'], errors='coerce').dt.date
+    df['Treinos'] = df['Treinos'].apply(lambda x: str(x).split(", ") if isinstance(x, str) else [])
+    df['Qtd_Treinos'] = df['Treinos'].apply(lambda x: len(x))
 
+    resumo7 = df[df['Data'] >= dt.now().date() - pd.Timedelta(days=7)]
+    kpi1, kpi2, kpi3 = st.columns(3)
+    kpi1.metric("📅 Dias registrados", f"{df['Data'].nunique()} dias")
+    kpi2.metric("🏃 Cardio realizado", f"{df['Cardio'].apply(lambda x: len(str(x).strip()) > 0).sum()} dias")
+    jejum_count = df['Refeições'].str.contains("Jejum").sum()
+    jejum_pct = jejum_count / len(df) * 100
+    kpi3.metric("⏳ Jejum", f"{jejum_count} dias", f"{jejum_pct:.1f}%")
 
-resumo7 = df[df['Data'] >= dt.now().date() - pd.Timedelta(days=7)]
-kpi1, kpi2, kpi3 = st.columns(3)
-kpi1.metric("📅 Dias registrados", f"{df['Data'].nunique()} dias")
-kpi2.metric("🏃 Cardio realizado", f"{df['Cardio'].apply(lambda x: len(str(x).strip()) > 0).sum()} dias")
-jejum_count = df['Refeições'].str.contains("Jejum").sum()
-jejum_pct = jejum_count / len(df) * 100
-kpi3.metric("⏳ Jejum", f"{jejum_count} dias", f"{jejum_pct:.1f}%")
+    st.markdown("<hr style='border:1px solid #ccc'>", unsafe_allow_html=True)
+    gr1, gr2 = st.columns(2)
 
+    with gr1:
+        st.subheader("📌 Dias com Registro")
+        fig_dias = px.histogram(df, x='Data', nbins=10)
+        st.plotly_chart(fig_dias, use_container_width=True)
 
-st.markdown("<hr style='border:1px solid #ccc'>", unsafe_allow_html=True)
-gr1, gr2 = st.columns(2)
+        st.subheader("💪 Exercícios mais frequentes")
+        treino_explodido = df.explode('Treinos')
+        treino_explodido['Treinos'] = treino_explodido['Treinos'].str.strip()
+        treino_counts = treino_explodido['Treinos'].value_counts().reset_index()
+        treino_counts.columns = ['Exercício', 'Frequência']
+        fig_freq = px.bar(treino_counts, x='Exercício', y='Frequência')
+        st.plotly_chart(fig_freq, use_container_width=True)
 
+    with gr2:
+        st.subheader("📈 Evolução dos treinos")
+        fig_evo = px.line(df, x='Data', y='Qtd_Treinos', markers=True)
+        st.plotly_chart(fig_evo, use_container_width=True)
 
-with gr1:
-st.subheader("📌 Dias com Registro")
-fig_dias = px.histogram(df, x='Data', nbins=10)
-st.plotly_chart(fig_dias, use_container_width=True)
-
-
-st.subheader("💪 Exercícios mais frequentes")
-treino_explodido = df.explode('Treinos')
-treino_explodido['Treinos'] = treino_explodido['Treinos'].str.strip()
-treino_counts = treino_explodido['Treinos'].value_counts().reset_index()
-treino_counts.columns = ['Exercício', 'Frequência']
-fig_freq = px.bar(treino_counts, x='Exercício', y='Frequência')
-st.plotly_chart(fig_freq, use_container_width=True)
-
-
-with gr2:
-st.subheader("📈 Evolução dos treinos")
-fig_evo = px.line(df, x='Data', y='Qtd_Treinos', markers=True)
-st.plotly_chart(fig_evo, use_container_width=True)
-
-
-st.subheader("📆 Últimos 7 dias")
-st.write(f"🏋️ Treinos: {resumo7['Qtd_Treinos'].sum()} exercícios")
-st.write(f"🍽️ Dias com refeições: {resumo7['Refeições'].apply(lambda x: len(x) > 0).sum()} dias")
-st.write(f"🏃 Cardio: {resumo7['Cardio'].apply(lambda x: len(str(x).strip()) > 0).sum()} dias")
+        st.subheader("📆 Últimos 7 dias")
+        st.write(f"🏋️ Treinos: {resumo7['Qtd_Treinos'].sum()} exercícios")
+        st.write(f"🍽️ Dias com refeições: {resumo7['Refeições'].apply(lambda x: len(x) > 0).sum()} dias")
+        st.write(f"🏃 Cardio: {resumo7['Cardio'].apply(lambda x: len(str(x).strip()) > 0).sum()} dias")
 else:
-st.info("Nenhum dado registrado ainda.")
-
+    st.info("Nenhum dado registrado ainda.")
 
 st.markdown("---")
 st.caption("🔁 Integração com Google Sheets ativada | Desenvolvido com ❤️ no Streamlit")
