@@ -122,12 +122,10 @@ for exercicio, link in treinos[tipo_treino]:
 # --- CHECKBOXES: Cardio ---
 st.subheader("🏃 Cardio")
 cardio_dia = []
-if dia in ["Segunda-feira", "Sábado", "Domingo"]:
-    if st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}"):
-        cardio_dia.append("Corrida")
-elif dia in ["Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"]:
-    if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
-        cardio_dia.append("Natação")
+if st.checkbox("Corrida (30-40min)", key=f"corrida_{dia}"):
+    cardio_dia.append("Corrida")
+if st.checkbox("Natação (45min)", key=f"natacao_{dia}"):
+    cardio_dia.append("Natação")
 
 # --- ENVIO PARA GOOGLE SHEETS ---
 st.markdown("### 📤 Salvar e Enviar para Google Sheets")
